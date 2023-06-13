@@ -9,7 +9,11 @@ import {TransactionHelper, Transaction} from "@matterlabs/zksync-contracts/l2/sy
 
 import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
 
-contract MyPaymaster is IPaymaster {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+/// @author Matter Labs
+/// @notice This smart contract pays the gas fees for accounts with balance of a specific ERC20 token.
+contract ERC20gatedPaymaster is IPaymaster, Ownable {
     uint256 constant PRICE_FOR_PAYING_FEES = 1;
 
     address public allowedToken;
@@ -115,5 +119,12 @@ contract MyPaymaster is IPaymaster {
         // Refunds are not supported yet.
     }
 
+    function withdraw(address _to) external onlyOwner {
+        // send paymaster funds to the owner
+        (bool success, ) = payable(_to).call{value: address(this).balance}("");
+        require(success, "Failed to withdraw funds from paymaster.");
+    }
+
     receive() external payable {}
+    
 }
