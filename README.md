@@ -13,7 +13,7 @@ This repository contains several example Paymaster Smart Contracts that cover mo
 
 Stay tuned! More Paymaster examples will be added over time. This project was scaffolded with [zksync-cli](https://github.com/matter-labs/zksync-cli).
 
-## Repository Structure 🏗️
+## Repository structure 🏗️
 
 - `/contracts`: Contains the smart contracts.
 - `/deploy`: Contains deployment and contract interaction scripts.
@@ -30,7 +30,7 @@ Stay tuned! More Paymaster examples will be added over time. This project was sc
 
 Both `yarn run deploy` and `yarn run greet` are configured in the `package.json` file and run `yarn hardhat deploy-zksync`.
 
-### Environment Variables 🌳
+### Environment variables 🌳
 
 To prevent the leakage of private keys, we use the `dotenv` package to load environment variables. This is particularly used to load the wallet private key, which is required to run the deployment script.
 
@@ -40,16 +40,16 @@ To use it, rename `.env.example` to `.env` and input your private key.
 WALLET_PRIVATE_KEY=123cde574ccff....
 ```
 
-### Local Testing 🧪
+### Local testing 🧪
 
 To run tests, you'll need to start the zkSync local environment. Please refer to [this section of the docs](https://v2-docs.zksync.io/api/hardhat/testing.html#prerequisites) for details.
 
 Without starting the zkSync local environment, the tests will fail with an error: `Error: could not detect network (event="noNetwork", code=NETWORK_ERROR, version=providers/5.7.2)`
 
-## Have a Request? 🙋‍♀️
+## Have a request? 🙋‍♀️
 If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
 
-## Official Links 🔗
+## Official links 🔗
 
 - [Website](https://zksync.io/)
 - [Documentation](https://v2-docs.zksync.io/dev/)

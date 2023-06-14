@@ -19,7 +19,7 @@ The structure of the directory is as follows:
     └── Greeter.sol
 ```
 
-## Paymaster Contracts 📝💰
+## Paymaster contracts 📝💰
 
 Under the `paymaster` directory, we have four example Paymaster Smart Contracts:
 
@@ -45,10 +45,10 @@ Under the `utils` directory, you'll find a utility contract:
 
 - 👋 **[Greeter](./utils/Greeter.sol)**: A simple contract that returns a greeting. A classic for demonstrating simple contract structure!
 
-## Have a Request? 🙋‍♀️
+## Have a request? 🙋‍♀️
 If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
 
-## Important Notice ⚠️
+## Important notice ⚠️
 
 These contracts are for demonstration and educational purposes only. They are not audited or ready for production use. Always ensure that smart contracts used in production environments have been audited and tested thoroughly for security and correctness.
 
