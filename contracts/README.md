@@ -9,12 +9,13 @@ The structure of the directory is as follows:
 ```
 ├── README.md
 ├── paymasters
-│   ├── AllowlistPaymaster.sol
-│   ├── ERC20gatedPaymaster.sol
-│   ├── ERC721gatedPaymaster.sol
-│   └── GaslessPaymaster.sol
+│   ├── AllowlistPaymaster.sol
+│   ├── ERC20gatedPaymaster.sol
+│   ├── ERC721gatedPaymaster.sol
+│   └── GaslessPaymaster.sol
 ├── token
-│   └── ERC721.sol
+│   ├── ERC20.sol
+│   └── ERC721.sol
 └── utils
     └── Greeter.sol
 ```
