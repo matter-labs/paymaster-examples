@@ -35,13 +35,15 @@ describe("AllowlistPaymaster", function () {
     // fund paymaster
     await fundAccount(wallet, paymaster.address, "3");
     // set allowance for the user wallet
-    const tx = await paymaster.connect(wallet).setBatchAllowance([userWallet.address], [true]);
+    const tx = await paymaster
+      .connect(wallet)
+      .setBatchAllowance([userWallet.address], [true]);
     await tx.wait();
   });
 
   async function executeGreetingTransaction(user: Wallet) {
     const gasPrice = await provider.getGasPrice();
-  
+
     const paymasterParams = utils.getPaymasterParams(paymaster.address, {
       type: "General",
       // empty bytes as paymaster does not use innerInput

@@ -38,7 +38,7 @@ describe("GaslessPaymaster", function () {
 
   async function executeGreetingTransaction(user: Wallet) {
     const gasPrice = await provider.getGasPrice();
-  
+
     const paymasterParams = utils.getPaymasterParams(paymaster.address, {
       type: "General",
       // empty bytes as paymaster does not use innerInput

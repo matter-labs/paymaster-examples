@@ -32,7 +32,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const contract = new ethers.Contract(
     CONTRACT_ADDRESS,
     ContractArtifact.abi,
-    signer
+    signer,
   );
 
   // Read message from contract

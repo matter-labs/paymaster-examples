@@ -20,7 +20,7 @@ contract MyNFT is ERC721, Ownable {
         tokenCounter = 0;
     }
 
-    // Creates an NFT collection, with a unique token ID and a token URI
+    // Creates an NFT collection, with a unique token ID
     function createCollectible(address recipient) public onlyOwner returns (uint256) {
         // Increases the tokenCounter by 1 and then mints the token with this new ID
         _safeMint(recipient, tokenCounter);

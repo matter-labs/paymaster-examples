@@ -9,6 +9,7 @@
     "@matterlabs/hardhat-zksync-deploy": "^0.6.1",
     "@matterlabs/hardhat-zksync-solc": "0.4.0-beta.1",
     "@matterlabs/hardhat-zksync-verify": "^0.1.5",
+    "@matterlabs/zksync-contracts": "^0.6.1",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@openzeppelin/contracts": "^4.9.1",
     "@types/chai": "^4.3.4",
@@ -29,7 +30,5 @@
     "greet": "yarn hardhat deploy-zksync --script use-greeter.ts",
     "format": "prettier --write \"{deploy,test}/**/*.{ts,js,jsx,tsx}\""
   },
-  "dependencies": {
-    "@matterlabs/zksync-contracts": "^0.6.1"
-  }
+  "dependencies": {}
 }

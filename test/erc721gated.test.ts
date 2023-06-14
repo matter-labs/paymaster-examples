@@ -15,12 +15,13 @@ describe("ERC721gatedPaymaster", function () {
   let deployer: Deployer;
   let userWallet: Wallet;
   let initialBalance: ethers.BigNumber;
-  let otherBalance: ethers.BigNumber; 
+  let otherBalance: ethers.BigNumber;
   let paymaster: Contract;
   let greeter: Contract;
   let erc721: Contract;
 
   beforeEach(async function () {
+    // setup deployer
     provider = Provider.getDefaultProvider();
     wallet = new Wallet(RICH_WALLET_PK, provider);
     deployer = new Deployer(hre, wallet);
@@ -29,14 +30,15 @@ describe("ERC721gatedPaymaster", function () {
     userWallet = Wallet.createRandom();
     userWallet = new Wallet(userWallet.privateKey, provider);
     initialBalance = await userWallet.getBalance();
-
+    // deploy contracts
     erc721 = await deployContract(deployer, "MyNFT", []);
-    paymaster = await deployContract(deployer, "ERC721gatedPaymaster", [erc721.address]);
+    paymaster = await deployContract(deployer, "ERC721gatedPaymaster", [
+      erc721.address,
+    ]);
     greeter = await deployContract(deployer, "Greeter", ["Hi"]);
-
+    // fund paymaster
     await fundAccount(wallet, paymaster.address, "3");
     otherBalance = await wallet.getBalance();
-
   });
 
   async function executeGreetingTransaction(user: Wallet) {
@@ -67,9 +69,11 @@ describe("ERC721gatedPaymaster", function () {
   }
 
   it("should not pay for gas fees when user has NFT", async function () {
-    const tx = await erc721.connect(wallet).createCollectible(userWallet.address);
+    const tx = await erc721
+      .connect(wallet)
+      .createCollectible(userWallet.address);
     await tx.wait();
-    
+
     await executeGreetingTransaction(userWallet);
     const newBalance = await userWallet.getBalance();
 
