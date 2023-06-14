@@ -8,7 +8,7 @@ The structure of the directory is as follows:
 
 ```
 ├── README.md
-├── paymaster
+├── paymasters
 │   ├── AllowlistPaymaster.sol
 │   ├── ERC20gatedPaymaster.sol
 │   ├── ERC721gatedPaymaster.sol
