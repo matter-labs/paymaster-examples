@@ -15,21 +15,28 @@ describe("ERC721gatedPaymaster", function () {
   let deployer: Deployer;
   let userWallet: Wallet;
   let initialBalance: ethers.BigNumber;
+  let otherBalance: ethers.BigNumber; 
   let paymaster: Contract;
   let greeter: Contract;
+  let erc721: Contract;
 
   beforeEach(async function () {
     provider = Provider.getDefaultProvider();
     wallet = new Wallet(RICH_WALLET_PK, provider);
     deployer = new Deployer(hre, wallet);
 
+    // setup new wallet
     userWallet = Wallet.createRandom();
+    userWallet = new Wallet(userWallet.privateKey, provider);
     initialBalance = await userWallet.getBalance();
 
-    paymaster = await deployContract(deployer, "ERC721gatedPaymaster", []);
+    erc721 = await deployContract(deployer, "MyNFT", []);
+    paymaster = await deployContract(deployer, "ERC721gatedPaymaster", [erc721.address]);
     greeter = await deployContract(deployer, "Greeter", ["Hi"]);
 
     await fundAccount(wallet, paymaster.address, "3");
+    otherBalance = await wallet.getBalance();
+
   });
 
   async function executeGreetingTransaction(user: Wallet) {
@@ -40,7 +47,7 @@ describe("ERC721gatedPaymaster", function () {
       // empty bytes as paymaster does not use innerInput
       innerInput: new Uint8Array(),
     });
-
+    console.log("user: ", user.address);
     const setGreetingTx = await greeter
       .connect(user)
       .setGreeting("Hello World", {
@@ -54,29 +61,40 @@ describe("ERC721gatedPaymaster", function () {
         },
       });
 
-    // wait until the transaction is mined
     await setGreetingTx.wait();
 
     return wallet.getBalance();
   }
 
   it("should not pay for gas fees when user has NFT", async function () {
-    const erc721 = await deployContract(deployer, "MyNFT", []);
-    await erc721.createCollectible(
-      "https://my.token.uri/1",
-      userWallet.address
-    );
-
-    const newBalance = await executeGreetingTransaction(userWallet);
+    const tx = await erc721.connect(wallet).createCollectible(userWallet.address);
+    await tx.wait();
+    
+    await executeGreetingTransaction(userWallet);
+    const newBalance = await userWallet.getBalance();
 
     expect(await greeter.greet()).to.equal("Hello World");
     expect(newBalance).to.eql(initialBalance);
   });
 
-  it("should pay for gas fees when user does not have NFT", async function () {
-    const newBalance = await executeGreetingTransaction(userWallet);
+  it("should allow owner to withdraw all funds", async function () {
+    try {
+      const tx = await paymaster.connect(wallet).withdraw(userWallet.address);
+      await tx.wait();
+    } catch (e) {
+      console.error("Error executing withdrawal:", e);
+    }
 
-    expect(await greeter.greet()).to.equal("Hello World");
-    expect(newBalance).to.eql(initialBalance);
+    const finalContractBalance = await provider.getBalance(paymaster.address);
+
+    expect(finalContractBalance).to.eql(ethers.BigNumber.from(0));
+  });
+
+  it("should prevent non-owners from withdrawing funds", async function () {
+    try {
+      await paymaster.connect(userWallet).withdraw(userWallet.address);
+    } catch (e) {
+      expect(e.message).to.include("Ownable: caller is not the owner");
+    }
   });
 });

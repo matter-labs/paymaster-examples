@@ -86,9 +86,10 @@ contract ERC721gatedPaymaster is IPaymaster, Ownable {
         // Refunds are not supported yet.
     }
 
-    function withdraw(address _to) external onlyOwner {
+    function withdraw(address payable _to) external onlyOwner {
         // send paymaster funds to the owner
-        (bool success, ) = payable(_to).call{value: address(this).balance}("");
+        uint256 balance = address(this).balance;
+        (bool success, ) = _to.call{value: balance}("");
         require(success, "Failed to withdraw funds from paymaster.");
     }
 

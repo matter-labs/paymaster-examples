@@ -28,5 +28,8 @@
     "deploy": "yarn hardhat deploy-zksync --script deploy-greeter.ts",
     "greet": "yarn hardhat deploy-zksync --script use-greeter.ts",
     "format": "prettier --write \"{deploy,test}/**/*.{ts,js,jsx,tsx}\""
+  },
+  "dependencies": {
+    "@matterlabs/zksync-contracts": "^0.6.1"
   }
 }
