@@ -2,7 +2,7 @@
 
 Welcome to the world of Paymasters! 🎉
 
-This directory contains several example Smart Contracts and a utility. These Smart Contracts are purely illustrative, showcasing different ways that a Paymaster Smart Contract can be structured. ⚠️ They are **not** designed for production use. 
+This directory contains several example Smart Contracts and a utility. These Smart Contracts are purely illustrative, showcasing different ways that a Paymaster Smart Contract can be structured. ⚠️ These contracts have **not been audited** and  are **not** designed for production use.  Please use these just as a reference.
 
 The structure of the directory is as follows:
 
