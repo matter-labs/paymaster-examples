@@ -36,9 +36,10 @@ Each of these contracts provides an example of how you can gate or restrict the 
 
 ## Token 🎟
 
-In the `token` directory, we have an example ERC721 contract:
+In the `token` directory, we have two example token contracts:
 
 - 🖼️ **[ERC721 Token](./token/ERC721.sol)**: This contract is an example of a non-fungible token (NFT) implementation using the ERC721 standard.
+- 💰 **[ERC20 Token](./token/ERC20.sol)**: This contract is an example of a fungible token contract implementation using the ERC20 standard.
 
 ## Utils 🛠️
 
