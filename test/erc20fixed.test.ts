@@ -9,7 +9,7 @@ import { deployContract, fundAccount } from "./utils";
 const RICH_WALLET_PK =
   "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
-describe("ERC20gatedPaymaster", function () {
+describe("ERC20fixedPaymaster", function () {
   let provider: Provider;
   let wallet: Wallet;
   let deployer: Deployer;
@@ -34,7 +34,7 @@ describe("ERC20gatedPaymaster", function () {
       "MyToken",
       18,
     ]);
-    paymaster = await deployContract(deployer, "ERC20gatedPaymaster", [
+    paymaster = await deployContract(deployer, "ERC20fixedPaymaster", [
       token.address,
     ]);
     greeter = await deployContract(deployer, "Greeter", ["Hi"]);

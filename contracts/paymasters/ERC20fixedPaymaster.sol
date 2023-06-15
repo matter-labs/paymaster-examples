@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @author Matter Labs
 /// @notice This smart contract pays the gas fees for accounts with balance of a specific ERC20 token. It makes use of the approval-based flow paymaster.
-contract ERC20gatedPaymaster is IPaymaster, Ownable {
+contract ERC20fixedPaymaster is IPaymaster, Ownable {
     uint256 constant PRICE_FOR_PAYING_FEES = 1;
 
     address public allowedToken;

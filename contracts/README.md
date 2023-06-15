@@ -10,7 +10,7 @@ The structure of the directory is as follows:
 ├── README.md
 ├── paymasters
 │   ├── AllowlistPaymaster.sol
-│   ├── ERC20gatedPaymaster.sol
+│   ├── ERC20fixedPaymaster.sol
 │   ├── ERC721gatedPaymaster.sol
 │   └── GaslessPaymaster.sol
 ├── token
@@ -28,7 +28,7 @@ Under the `paymaster` directory, we have four example Paymaster Smart Contracts:
 
 - 📜 **[Allowlist Paymaster](./paymaster/AllowlistPaymaster.sol)**: This Paymaster contract only pays fees for accounts present in a predefined list (the "allow list").
 
-- 🎫 **[ERC20 Gated Paymaster](./paymaster/ERC20gatedPaymaster.sol)**: This Paymaster contract is designed to pay fees only for accounts that have a balance of a specific ERC20 token.
+- 🎫 **[ERC20 Fixed Paymaster](./paymaster/ERC20fixedPaymaster.sol)**: This Paymaster contract is designed to accept a fixed amount of a specific ERC20 token in exchange for covering gas fees. It only services accounts that have a balance of the specified token.
 
 - 🎨 **[ERC721 Gated Paymaster](./paymaster/ERC721gatedPaymaster.sol)**: This Paymaster contract pays fees for accounts that hold a specific ERC721 token (NFT).
 

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @dev This contract is for basic demonstration purposes only. It should not be used in production.
- * It is for the convenience of the ERC20gatedPaymaster.sol contract and its corresponding test file.
+ * It is for the convenience of the ERC20fixedPaymaster.sol contract and its corresponding test file.
  */
 contract MyERC20 is ERC20 {
   uint8 private _decimals;
