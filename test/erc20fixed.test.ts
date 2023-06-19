@@ -9,15 +9,15 @@ import { deployContract, fundAccount } from "./utils";
 const RICH_WALLET_PK =
   "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
-describe("GaslessPaymaster", function () {
+describe("ERC20fixedPaymaster", function () {
   let provider: Provider;
   let wallet: Wallet;
   let deployer: Deployer;
-  let emptyWallet: Wallet;
   let userWallet: Wallet;
   let ownerInitialBalance: ethers.BigNumber;
   let paymaster: Contract;
   let greeter: Contract;
+  let token: Contract;
 
   beforeEach(async function () {
     // setup deployer
@@ -25,11 +25,18 @@ describe("GaslessPaymaster", function () {
     wallet = new Wallet(RICH_WALLET_PK, provider);
     deployer = new Deployer(hre, wallet);
     // setup new wallet
-    emptyWallet = Wallet.createRandom();
+    const emptyWallet = Wallet.createRandom();
     console.log(`Empty wallet's address: ${emptyWallet.address}`);
     userWallet = new Wallet(emptyWallet.privateKey, provider);
     // deploy contracts
-    paymaster = await deployContract(deployer, "GaslessPaymaster", []);
+    token = await deployContract(deployer, "MyERC20", [
+      "MyToken",
+      "MyToken",
+      18,
+    ]);
+    paymaster = await deployContract(deployer, "ERC20fixedPaymaster", [
+      token.address,
+    ]);
     greeter = await deployContract(deployer, "Greeter", ["Hi"]);
     // fund paymaster
     await fundAccount(wallet, paymaster.address, "3");
@@ -38,10 +45,13 @@ describe("GaslessPaymaster", function () {
 
   async function executeGreetingTransaction(user: Wallet) {
     const gasPrice = await provider.getGasPrice();
+    const token_address = token.address.toString();
 
     const paymasterParams = utils.getPaymasterParams(paymaster.address, {
-      type: "General",
-      // empty bytes as paymaster does not use innerInput
+      type: "ApprovalBased",
+      token: token_address,
+      minimalAllowance: ethers.BigNumber.from(1),
+      // empty bytes as testnet paymaster does not use innerInput
       innerInput: new Uint8Array(),
     });
 
@@ -50,7 +60,7 @@ describe("GaslessPaymaster", function () {
       .setGreeting("Hola, mundo!", {
         maxPriorityFeePerGas: ethers.BigNumber.from(0),
         maxFeePerGas: gasPrice,
-        // hardhcoded for testing
+        // hardcoded for testing
         gasLimit: 6000000,
         customData: {
           gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
@@ -63,11 +73,27 @@ describe("GaslessPaymaster", function () {
     return wallet.getBalance();
   }
 
-  it("Owner can update message for free", async function () {
-    const newBalance = await executeGreetingTransaction(userWallet);
+  it("user with MyERC20 token can update message for free", async function () {
+    const initialMintAmount = ethers.utils.parseEther("3");
+    const success = await token.mint(userWallet.address, initialMintAmount);
+    await success.wait();
+
+    const userInitialTokenBalance = await token.balanceOf(userWallet.address);
+    const userInitialETHBalance = await userWallet.getBalance();
+    const initialPaymasterBalance = await provider.getBalance(
+      paymaster.address,
+    );
+
+    await executeGreetingTransaction(userWallet);
+
+    const finalETHBalance = await userWallet.getBalance();
+    const finalUserTokenBalance = await token.balanceOf(userWallet.address);
+    const finalPaymasterBalance = await provider.getBalance(paymaster.address);
 
     expect(await greeter.greet()).to.equal("Hola, mundo!");
-    expect(newBalance).to.eql(ownerInitialBalance);
+    expect(initialPaymasterBalance.gt(finalPaymasterBalance)).to.be.true;
+    expect(userInitialETHBalance).to.eql(finalETHBalance);
+    expect(userInitialTokenBalance.gt(finalUserTokenBalance)).to.be.true;
   });
 
   it("should allow owner to withdraw all funds", async function () {

@@ -9,37 +9,40 @@ import { deployContract, fundAccount } from "./utils";
 const RICH_WALLET_PK =
   "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
-describe("Allowlist Paymaster", function () {
-  it("Owner can update message for free", async function () {
-    const provider = Provider.getDefaultProvider();
+describe("AllowlistPaymaster", function () {
+  let provider: Provider;
+  let wallet: Wallet;
+  let deployer: Deployer;
+  let emptyWallet: Wallet;
+  let userWallet: Wallet;
+  let userInitialBalance: ethers.BigNumber;
+  let paymaster: Contract;
+  let greeter: Contract;
 
-    const wallet = new Wallet(RICH_WALLET_PK, provider);
-
-    const deployer = new Deployer(hre, wallet);
-
-    const emptyWallet = Wallet.createRandom();
+  beforeEach(async function () {
+    // setup deployer
+    provider = Provider.getDefaultProvider();
+    wallet = new Wallet(RICH_WALLET_PK, provider);
+    deployer = new Deployer(hre, wallet);
+    // setup new wallet
+    emptyWallet = Wallet.createRandom();
     console.log(`Empty wallet's address: ${emptyWallet.address}`);
-    console.log(`Empty wallet's private key: ${emptyWallet.privateKey}`);
-
-    const user = new Wallet(emptyWallet.privateKey, provider);
-
-    const paymaster = await deployContract(deployer, "GaslessPaymaster", []);
-    const greeter = await deployContract(deployer, "Greeter", ["Hi"]);
-
+    userWallet = new Wallet(emptyWallet.privateKey, provider);
+    userInitialBalance = await userWallet.getBalance();
+    // deploy contracts
+    paymaster = await deployContract(deployer, "AllowlistPaymaster", []);
+    greeter = await deployContract(deployer, "Greeter", ["Hi"]);
+    // fund paymaster
     await fundAccount(wallet, paymaster.address, "3");
+    // set allowance for the user wallet
+    const tx = await paymaster
+      .connect(wallet)
+      .setBatchAllowance([userWallet.address], [true]);
+    await tx.wait();
+  });
 
-    // console.log("Paymaster funded");
-
-    // const pmBalance = await provider.getBalance(paymaster.address);
-
-    // console.log("paymaster balance :>> ", pmBalance.toString());
-
+  async function executeGreetingTransaction(user: Wallet) {
     const gasPrice = await provider.getGasPrice();
-
-    const initialBalance = await wallet.getBalance();
-
-    // console.log("initialBalance :>> ", initialBalance.toString());
-    expect(await greeter.greet()).to.eq("Hi");
 
     const paymasterParams = utils.getPaymasterParams(paymaster.address, {
       type: "General",
@@ -59,14 +62,46 @@ describe("Allowlist Paymaster", function () {
           paymasterParams,
         },
       });
-    // wait until the transaction is mined
+
     await setGreetingTx.wait();
 
-    const newBalance = await wallet.getBalance();
+    return wallet.getBalance();
+  }
 
-    // console.log("newBalance :>> ", newBalance.toString());
-
+  it("allowed user can update message for free", async function () {
+    await executeGreetingTransaction(userWallet);
+    const newBalance = await userWallet.getBalance();
     expect(await greeter.greet()).to.equal("Hola, mundo!");
-    expect(newBalance).to.eql(initialBalance);
+    expect(newBalance).to.eql(userInitialBalance);
+  });
+
+  it("should allow owner to withdraw all funds", async function () {
+    try {
+      const tx = await paymaster.connect(wallet).withdraw(userWallet.address);
+      await tx.wait();
+    } catch (e) {
+      console.error("Error executing withdrawal:", e);
+    }
+
+    const finalContractBalance = await provider.getBalance(paymaster.address);
+
+    expect(finalContractBalance).to.eql(ethers.BigNumber.from(0));
+  });
+
+  it("should prevent non-owners from withdrawing funds", async function () {
+    try {
+      await paymaster.connect(userWallet).withdraw(userWallet.address);
+    } catch (e) {
+      expect(e.message).to.include("Ownable: caller is not the owner");
+    }
+  });
+
+  it("should prevent non-allowed user from calling Greeter", async function () {
+    const notAllowedWallet = Wallet.createRandom().connect(provider);
+    try {
+      await executeGreetingTransaction(notAllowedWallet);
+    } catch (e) {
+      expect(e.message).to.include("Account is not in allow list");
+    }
   });
 });

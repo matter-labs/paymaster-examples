@@ -9,31 +9,36 @@ import { deployContract, fundAccount } from "./utils";
 const RICH_WALLET_PK =
   "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
-describe("GaslessPaymaster", function () {
+describe("ERC721gatedPaymaster", function () {
   let provider: Provider;
   let wallet: Wallet;
   let deployer: Deployer;
-  let emptyWallet: Wallet;
   let userWallet: Wallet;
-  let ownerInitialBalance: ethers.BigNumber;
+  let initialBalance: ethers.BigNumber;
+  let otherBalance: ethers.BigNumber;
   let paymaster: Contract;
   let greeter: Contract;
+  let erc721: Contract;
 
   beforeEach(async function () {
     // setup deployer
     provider = Provider.getDefaultProvider();
     wallet = new Wallet(RICH_WALLET_PK, provider);
     deployer = new Deployer(hre, wallet);
+
     // setup new wallet
-    emptyWallet = Wallet.createRandom();
-    console.log(`Empty wallet's address: ${emptyWallet.address}`);
-    userWallet = new Wallet(emptyWallet.privateKey, provider);
+    userWallet = Wallet.createRandom();
+    userWallet = new Wallet(userWallet.privateKey, provider);
+    initialBalance = await userWallet.getBalance();
     // deploy contracts
-    paymaster = await deployContract(deployer, "GaslessPaymaster", []);
+    erc721 = await deployContract(deployer, "MyNFT", []);
+    paymaster = await deployContract(deployer, "ERC721gatedPaymaster", [
+      erc721.address,
+    ]);
     greeter = await deployContract(deployer, "Greeter", ["Hi"]);
     // fund paymaster
     await fundAccount(wallet, paymaster.address, "3");
-    ownerInitialBalance = await wallet.getBalance();
+    otherBalance = await wallet.getBalance();
   });
 
   async function executeGreetingTransaction(user: Wallet) {
@@ -44,10 +49,10 @@ describe("GaslessPaymaster", function () {
       // empty bytes as paymaster does not use innerInput
       innerInput: new Uint8Array(),
     });
-
+    console.log("user: ", user.address);
     const setGreetingTx = await greeter
       .connect(user)
-      .setGreeting("Hola, mundo!", {
+      .setGreeting("Hello World", {
         maxPriorityFeePerGas: ethers.BigNumber.from(0),
         maxFeePerGas: gasPrice,
         // hardhcoded for testing
@@ -63,11 +68,17 @@ describe("GaslessPaymaster", function () {
     return wallet.getBalance();
   }
 
-  it("Owner can update message for free", async function () {
-    const newBalance = await executeGreetingTransaction(userWallet);
+  it("should not pay for gas fees when user has NFT", async function () {
+    const tx = await erc721
+      .connect(wallet)
+      .createCollectible(userWallet.address);
+    await tx.wait();
 
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
-    expect(newBalance).to.eql(ownerInitialBalance);
+    await executeGreetingTransaction(userWallet);
+    const newBalance = await userWallet.getBalance();
+
+    expect(await greeter.greet()).to.equal("Hello World");
+    expect(newBalance).to.eql(initialBalance);
   });
 
   it("should allow owner to withdraw all funds", async function () {

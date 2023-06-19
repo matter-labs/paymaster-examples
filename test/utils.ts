@@ -5,7 +5,7 @@ import * as ethers from "ethers";
 async function deployContract(
   deployer: Deployer,
   contract: string,
-  params: any[]
+  params: any[],
 ): Promise<Contract> {
   const artifact = await deployer.loadArtifact(contract);
 
