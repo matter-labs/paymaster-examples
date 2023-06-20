@@ -24,13 +24,13 @@ The structure of the directory is as follows:
 
 Under the `paymaster` directory, we have four example Paymaster Smart Contracts:
 
-- 🆓 **[Gasless Paymaster](./paymaster/GaslessPaymaster.sol)**: This Paymaster contract is designed to pay fees for any account. Truly a free-for-all!
+- 🆓 **[Gasless Paymaster](./paymasters/GaslessPaymaster.sol)**: This Paymaster contract is designed to pay fees for any account. Truly a free-for-all!
 
-- 📜 **[Allowlist Paymaster](./paymaster/AllowlistPaymaster.sol)**: This Paymaster contract only pays fees for accounts present in a predefined list (the "allow list").
+- 📜 **[Allowlist Paymaster](./paymasters/AllowlistPaymaster.sol)**: This Paymaster contract only pays fees for accounts present in a predefined list (the "allow list").
 
-- 🎫 **[ERC20 Fixed Paymaster](./paymaster/ERC20fixedPaymaster.sol)**: This Paymaster contract is designed to accept a fixed amount of a specific ERC20 token in exchange for covering gas fees. It only services accounts that have a balance of the specified token.
+- 🎫 **[ERC20 Fixed Paymaster](./paymasters/ERC20fixedPaymaster.sol)**: This Paymaster contract is designed to accept a fixed amount of a specific ERC20 token in exchange for covering gas fees. It only services accounts that have a balance of the specified token.
 
-- 🎨 **[ERC721 Gated Paymaster](./paymaster/ERC721gatedPaymaster.sol)**: This Paymaster contract pays fees for accounts that hold a specific ERC721 token (NFT).
+- 🎨 **[ERC721 Gated Paymaster](./paymasters/ERC721gatedPaymaster.sol)**: This Paymaster contract pays fees for accounts that hold a specific ERC721 token (NFT).
 
 Each of these contracts provides an example of how you can gate or restrict the use of a Paymaster contract, by checking for certain conditions or requiring specific tokens.
 
