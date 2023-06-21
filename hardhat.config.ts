@@ -25,10 +25,6 @@ const zkSyncTestnet =
       };
 
 const config: HardhatUserConfig = {
-  // zksolc: {
-  //   version: "latest", // can be defined like 1.3.x
-  //   settings: {},
-  // },
   defaultNetwork: "zkSyncTestnet",
   networks: {
     hardhat: {
