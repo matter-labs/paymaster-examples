@@ -3,6 +3,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
+import "@nomiclabs/hardhat-etherscan";
 
 // dynamically changes endpoints for local tests
 const zkSyncTestnet =
@@ -26,7 +27,7 @@ const zkSyncTestnet =
 
 const config: HardhatUserConfig = {
   zksolc: {
-    version: "latest",
+    version: "latest", // can be defined like 1.3.x
     settings: {},
   },
   defaultNetwork: "zkSyncTestnet",

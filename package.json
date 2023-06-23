@@ -8,7 +8,7 @@
   "devDependencies": {
     "@matterlabs/hardhat-zksync-deploy": "^0.6.1",
     "@matterlabs/hardhat-zksync-solc": "^0.4.0",
-    "@matterlabs/hardhat-zksync-verify": "^0.1.5",
+    "@matterlabs/hardhat-zksync-verify": "^0.1.8",
     "@matterlabs/zksync-contracts": "^0.6.1",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@openzeppelin/contracts": "^4.9.1",
@@ -26,8 +26,6 @@
   },
   "scripts": {
     "test": "NODE_ENV=test hardhat test --network zkSyncTestnet",
-    "deploy": "yarn hardhat deploy-zksync --script deploy-greeter.ts",
-    "greet": "yarn hardhat deploy-zksync --script use-greeter.ts",
     "format": "prettier --write \"{deploy,test}/**/*.{ts,js,jsx,tsx}\""
   },
   "dependencies": {}
