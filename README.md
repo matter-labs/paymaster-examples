@@ -27,7 +27,7 @@ Stay tuned! More Paymaster examples will be added over time. This project was sc
 - `yarn format`: Runs prettier formatter.
 - `yarn hardhat deploy-zksync --script <name-of-script>`: This command is used to deploy contracts. Scripts for deployment are located in the `/deploy` directory.
 
-> ⚠️ **Please Note**: Certain deployment scripts (such as `erc20FixedPaymaster.ts` and `erc721GatedPaymaster.ts`) requires contract addresses as input arguments during the contract's construction phase.
+> ⚠️ **Please Note**: Certain deployment scripts (such as `erc20FixedPaymaster.ts` and `erc721GatedPaymaster.ts`) requires addresses as input arguments during the contract's construction phase.
 
 ### Environment variables 🌳
 
