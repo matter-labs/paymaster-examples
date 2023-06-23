@@ -10,7 +10,7 @@ dotenv.config();
 // load wallet private key from env file
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 // The address of the token contract
-const TOKEN_ADDRESS="TOKEN_ADDRESS";
+const TOKEN_ADDRESS = "TOKEN_ADDRESS";
 
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
@@ -28,7 +28,9 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   // Deploying the paymaster
   const paymasterArtifact = await deployer.loadArtifact("ERC20fixedPaymaster");
-  const deploymentFee = await deployer.estimateDeployFee(paymasterArtifact, [TOKEN_ADDRESS]);
+  const deploymentFee = await deployer.estimateDeployFee(paymasterArtifact, [
+    TOKEN_ADDRESS,
+  ]);
   const parsedFee = ethers.utils.formatEther(deploymentFee.toString());
   console.log(`The deployment is estimated to cost ${parsedFee} ETH`);
   // Deploy the contract
@@ -43,21 +45,24 @@ export default async function (hre: HardhatRuntimeEnvironment) {
       value: ethers.utils.parseEther("0.005"),
     })
   ).wait();
-   
+
   let paymasterBalance = await provider.getBalance(paymaster.address);
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
-  // Verify contract programmatically 
+  // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName = "contracts/paymasters/ERC20fixedPaymaster.sol:ERC20fixedPaymaster";
+  const contractFullyQualifedName =
+    "contracts/paymasters/ERC20fixedPaymaster.sol:ERC20fixedPaymaster";
   const verificationId = await hre.run("verify:verify", {
     address: paymaster.address,
     contract: contractFullyQualifedName,
     constructorArguments: [TOKEN_ADDRESS],
     bytecode: paymasterArtifact.bytecode,
   });
-  console.log(`${contractFullyQualifedName} verified! VerificationId: ${verificationId}`);
+  console.log(
+    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  );
 
   console.log(`Done!`);
 }

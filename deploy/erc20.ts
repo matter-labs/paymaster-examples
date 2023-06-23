@@ -10,7 +10,7 @@ dotenv.config();
 // load wallet private key from env file
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 // We will mint the NFTs to this address
-const RECIPIENT_ADDRESS = "RECIPIENT_ADDRESS"
+const RECIPIENT_ADDRESS = "RECIPIENT_ADDRESS";
 
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
@@ -32,11 +32,18 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const symbol = "ERC20";
   const decimals = 18;
   const tokenContractArtifact = await deployer.loadArtifact("MyERC20");
-  const deploymentFee = await deployer.estimateDeployFee(tokenContractArtifact, [name, symbol, decimals]);
+  const deploymentFee = await deployer.estimateDeployFee(
+    tokenContractArtifact,
+    [name, symbol, decimals],
+  );
   const parsedFee = ethers.utils.formatEther(deploymentFee.toString());
   console.log(`The deployment is estimated to cost ${parsedFee} ETH`);
   // Deploy the contract
-  const tokenContract = await deployer.deploy(tokenContractArtifact, [name, symbol, decimals]);
+  const tokenContract = await deployer.deploy(tokenContractArtifact, [
+    name,
+    symbol,
+    decimals,
+  ]);
   console.log(`Token contract address: ${tokenContract.address}`);
 
   // Mint token to the recipient address
@@ -49,7 +56,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const balance = await tokenContract.balanceOf(RECIPIENT_ADDRESS);
   console.log(`Token balance of the recipient: ${balance}`);
 
-  // Verify contract programmatically 
+  // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
   const contractFullyQualifedName = "contracts/token/ERC20.sol:MyERC20";
@@ -59,7 +66,9 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     constructorArguments: [name, symbol, decimals],
     bytecode: tokenContractArtifact.bytecode,
   });
-  console.log(`${contractFullyQualifedName} verified! VerificationId: ${verificationId}`);
+  console.log(
+    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  );
 
   console.log(`Done!`);
 }

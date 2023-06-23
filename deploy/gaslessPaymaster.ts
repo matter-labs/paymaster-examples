@@ -24,11 +24,11 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   // Deploying the paymaster
   const paymasterArtifact = await deployer.loadArtifact("GaslessPaymaster");
-  const deploymentFee = await deployer.estimateDeployFee(paymasterArtifact, [ ]);
+  const deploymentFee = await deployer.estimateDeployFee(paymasterArtifact, []);
   const parsedFee = ethers.utils.formatEther(deploymentFee.toString());
   console.log(`The deployment is estimated to cost ${parsedFee} ETH`);
   // Deploy the contract
-  const paymaster = await deployer.deploy(paymasterArtifact, [ ]);
+  const paymaster = await deployer.deploy(paymasterArtifact, []);
   console.log(`Paymaster address: ${paymaster.address}`);
 
   console.log("Funding paymaster with ETH");
@@ -43,17 +43,20 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   let paymasterBalance = await provider.getBalance(paymaster.address);
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
-  // Verify contract programmatically 
+  // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName = "contracts/paymasters/GaslessPaymaster.sol:GaslessPaymaster";
+  const contractFullyQualifedName =
+    "contracts/paymasters/GaslessPaymaster.sol:GaslessPaymaster";
   const verificationId = await hre.run("verify:verify", {
     address: paymaster.address,
     contract: contractFullyQualifedName,
-    constructorArguments: [ ],
+    constructorArguments: [],
     bytecode: paymasterArtifact.bytecode,
   });
-  console.log(`${contractFullyQualifedName} verified! VerificationId: ${verificationId}`);
+  console.log(
+    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  );
 
   console.log(`Done!`);
 }

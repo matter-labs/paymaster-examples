@@ -47,14 +47,14 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   //obtain the Constructor Arguments
   console.log(
-    "constructor args:" + greeterContract.interface.encodeDeploy([greeting])
+    "constructor args:" + greeterContract.interface.encodeDeploy([greeting]),
   );
 
   // Show the contract info.
   const contractAddress = greeterContract.address;
   console.log(`${artifact.contractName} was deployed to ${contractAddress}`);
 
-  // Verify contract programmatically 
+  // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
   const contractFullyQualifedName = "contracts/utils/Greeter.sol:Greeter";
@@ -64,5 +64,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     constructorArguments: [greeting],
     bytecode: artifact.bytecode,
   });
-  console.log(`${contractFullyQualifedName} verified! VerificationId: ${verificationId}`)
+  console.log(
+    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  );
 }

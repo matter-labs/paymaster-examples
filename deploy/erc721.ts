@@ -9,7 +9,7 @@ dotenv.config();
 // load wallet private key from env file
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 // We will mint the NFTs to this address
-const RECIPIENT_ADDRESS = "RECIPIENT_ADDRESS"
+const RECIPIENT_ADDRESS = "RECIPIENT_ADDRESS";
 
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
@@ -28,28 +28,30 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   // Deploying the ERC721 contract
   const nftContractArtifact = await deployer.loadArtifact("MyNFT");
-  const nftContract = await deployer.deploy(nftContractArtifact, [ ]);
+  const nftContract = await deployer.deploy(nftContractArtifact, []);
   console.log(`NFT Contract address: ${nftContract.address}`);
 
   // Mint NFTs to the recipient address
   const tx = await nftContract.createCollectible(RECIPIENT_ADDRESS);
   await tx.wait();
-  
+
   // Get and log the balance of the recipient
   const balance = await nftContract.balanceOf(RECIPIENT_ADDRESS);
   console.log(`Balance of the recipient: ${balance}`);
 
-  // Verify contract programmatically 
+  // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
   const contractFullyQualifedName = "contracts/token/ERC721.sol:MyNFT";
   const verificationId = await hre.run("verify:verify", {
     address: nftContract.address,
     contract: contractFullyQualifedName,
-    constructorArguments: [ ],
+    constructorArguments: [],
     bytecode: nftContractArtifact.bytecode,
   });
-  console.log(`${contractFullyQualifedName} verified! VerificationId: ${verificationId}`);
+  console.log(
+    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  );
 
   console.log(`Done!`);
 }
