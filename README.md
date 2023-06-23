@@ -23,12 +23,11 @@ Stay tuned! More Paymaster examples will be added over time. This project was sc
 ## Commands 💻
 
 - `yarn hardhat compile`: Compiles the contracts.
-- `yarn run deploy`: Executes the deployment script `/deploy/deploy-greeter.ts`. Requires [environment variable setup](#environment-variables).
-- `yarn run greet`: Executes the script `/deploy/use-greeter.ts`, which interacts with the deployed Greeter contract.
 - `yarn test`: Runs tests. **Make sure to check the test requirements below.**
-- `yarn format`: Runs prettier formatter. 
+- `yarn format`: Runs prettier formatter.
+- `yarn hardhat deploy-zksync --script <name-of-script>`: This command is used to deploy contracts. Scripts for deployment are located in the `/deploy` directory.
 
-Both `yarn run deploy` and `yarn run greet` are configured in the `package.json` file and run `yarn hardhat deploy-zksync`.
+> ⚠️ **Please Note**: Certain deployment scripts (such as `erc20FixedPaymaster.ts` and `erc721GatedPaymaster.ts`) requires contract addresses as input arguments during the contract's construction phase.
 
 ### Environment variables 🌳
 
@@ -47,7 +46,7 @@ To run tests, you'll need to start the zkSync local environment. Please refer to
 Without starting the zkSync local environment, the tests will fail with an error: `Error: could not detect network (event="noNetwork", code=NETWORK_ERROR, version=providers/5.7.2)`
 
 ## Have a request? 🙋‍♀️
-If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
+If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions/categories/feature-requests)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
 
 ## Official links 🔗
 

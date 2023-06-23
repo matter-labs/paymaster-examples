@@ -48,7 +48,7 @@ Under the `utils` directory, you'll find a utility contract:
 - 👋 **[Greeter](./utils/Greeter.sol)**: A simple contract that returns a greeting. A classic for demonstrating simple contract structure!
 
 ## Have a request? 🙋‍♀️
-If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
+If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions/categories/feature-requests)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
 
 ## Important notice ⚠️
 
