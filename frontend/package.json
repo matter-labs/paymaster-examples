@@ -1,0 +1,30 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
+  },
+  "dependencies": {
+    "autoprefixer": "10.4.14",
+    "eslint": "8.38.0",
+    "eslint-config-next": "13.3.0",
+    "ethers": "^5.7.2",
+    "net": "^1.0.2",
+    "next": "13.3.0",
+    "postcss": "8.4.21",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.43.9",
+    "tailwindcss": "3.3.1",
+    "tls": "^0.0.1",
+    "zksync-web3": "^0.14.3"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
+  }
+}
