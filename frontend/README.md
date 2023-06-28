@@ -1,26 +1,26 @@
-# Paymaster UI Starter Template
+# Paymaster UI Starter Template 🚀
 
-This is a frontend application for the Greeter contract, built with [Next.js](https://nextjs.org/) and deployed on the zkSync Testnet.
+Welcome to the Paymaster UI Starter Template! This is a frontend application configured to interact with various Paymaster contracts. It's built with the fast, modern web framework, [Next.js](https://nextjs.org/), and is designed to run on the zkSync Testnet.
 
-## Getting Started
+## Getting Started 🏁
 
-To get started with the project, first install deps from root directory
+To get started with the project, install the dependencies from the root directory with:
 
 ```
 yarn install
 ```
 
-Next, we will need to compile, and deploy the required contracts. To do so in the root project directory run:
+Next, compile and deploy the required contracts. To do so in the root project directory, run:
 
 ```
 yarn compile && yarn deploy
 ```
 
-This will compile and deploy all the contracts in `../contracts/contracts`. 
+This will compile and deploy all the contracts located in `../contracts/contracts`. 
 
-Update the `consts` to include the deployed contract addresses for the paymaster, greeter, and ERC721 contracts. 
+Following this, update the `consts` to include the deployed contract addresses for the Paymaster, Greeter, and ERC721 contracts. 
 
-## Running the Application
+## Running the Application 🏃‍♀️
 
 To run the application, use the following command:
 
@@ -28,24 +28,26 @@ To run the application, use the following command:
 yarn dev
 ```
 
-This will start the Next.js server on `localhost:3000`.
+This command starts the Next.js server on `localhost:3000`.
 
-## Updating the Greeting
+## Interacting with Paymaster Contracts 🖥️
 
-To change the greeting message, navigate to `localhost:3000` in your web browser. Make sure you have MetaMask set up for the zkSync Testnet.
+To interact with the Paymaster contracts, navigate to `localhost:3000` in your web browser. Please ensure you have MetaMask set up for the zkSync Testnet.
 
-If you possess the applicable NFT then the transaction fees will be covered by the paymaster.
+Should you possess the applicable NFT, the transaction fees will be covered by the Paymaster. 
 
 Enter a new greeting message and submit it by clicking the "Change greeting" button.
 
-Note that the application is currently only deployed on the zkSync Testnet, so you will need to have an account on that network and some testnet funds to use it.
+Please note, the application is currently deployed only on the zkSync Testnet, so you'll need to have an account on that network, and some testnet funds to use it.
 
-## Contributing
+## Contributing 🙋‍♂️
 
-If you would like to contribute to the project, please follow the steps below:
+We welcome all contributors! If you're interested in contributing to this project, please follow the steps below:
 
 1. Fork the repository
 2. Create a new branch for your changes
-3. Make your changes and commit them
+3. Implement your changes and commit them
 4. Push your changes to your fork
 5. Submit a pull request to the main repository
+
+Your contribution will be reviewed and, if it's beneficial to the project, merged into the main branch. Thank you for your interest in our project!

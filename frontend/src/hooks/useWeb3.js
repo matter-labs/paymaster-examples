@@ -5,14 +5,14 @@ import {
   GREETER_CONTRACT_ABI,
   NFT_CONTRACT_ADDRESS,
   NFT_CONTRACT_ABI,
+  ERC20_CONTRACT_ADDRESS,
+  ERC20_CONTRACT_ABI,
 } from "../constants/consts";
 import { ethers } from "ethers";
 
-const useWeb3 = () => {
+const useWeb3 = (selectedPaymaster, greeterAddress, additionalAddress) => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
-  const [contractInstance, setContractInstance] = useState(null);
-  const [NFTcontractInstance, setNFTContractInstance] = useState(null);
 
   useEffect(() => {
     const setupWeb3 = async () => {
@@ -32,35 +32,17 @@ const useWeb3 = () => {
 
         const signerInstance = provider.getSigner();
         setSigner(signerInstance);
-
-        const contract = new Contract(
-          GREETER_CONTRACT_ADDRESS,
-          GREETER_CONTRACT_ABI,
-          signerInstance,
-        );
-        setContractInstance(contract);
-
-        const NFT_contract = new Contract(
-          NFT_CONTRACT_ADDRESS,
-          NFT_CONTRACT_ABI,
-          signerInstance,
-        );
-        setNFTContractInstance(NFT_contract);
       }
     };
 
     setupWeb3();
-  }, []);
+  }, [selectedPaymaster]);
 
   return {
     provider,
     signer,
-    contractInstance,
-    NFTcontractInstance,
     setProvider,
     setSigner,
-    setContractInstance,
-    setNFTContractInstance,
   };
 };
 

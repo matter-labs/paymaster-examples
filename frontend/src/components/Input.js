@@ -1,14 +1,17 @@
 import React from "react";
 
-const Input = ({ value, onChange }) => {
+const Input = ({ value, onChange, placeholder, title, className }) => {
   return (
-    <input
-      type="text"
-      placeholder="Enter new greeting"
-      value={value}
-      onChange={onChange}
-      className="border border-gray-400 mr-2 px-4 py-2 rounded-lg w-64"
-    />
+    <div className={`${className}`}>
+      <div className="ml-1 font-bold">{title}:</div>
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="mb-3 mt-1.5 border border-gray-400 mr-2 px-4 py-1.5 rounded-lg w-64"
+      />
+    </div>
   );
 };
 
