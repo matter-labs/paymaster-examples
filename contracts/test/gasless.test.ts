@@ -6,8 +6,12 @@ import * as ethers from "ethers";
 
 import { deployContract, fundAccount } from "./utils";
 
-const RICH_WALLET_PK =
-  "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
+// load env file
+import dotenv from "dotenv";
+dotenv.config();
+
+// load wallet private key from env file
+const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 
 describe("GaslessPaymaster", function () {
   let provider: Provider;
@@ -22,7 +26,7 @@ describe("GaslessPaymaster", function () {
   beforeEach(async function () {
     // setup deployer
     provider = Provider.getDefaultProvider();
-    wallet = new Wallet(RICH_WALLET_PK, provider);
+    wallet = new Wallet(PRIVATE_KEY, provider);
     deployer = new Deployer(hre, wallet);
     // setup new wallet
     emptyWallet = Wallet.createRandom();
