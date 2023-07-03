@@ -14,20 +14,20 @@ const PaymasterMessage = ({
   switch (selectedPaymaster) {
     case "Allowlist Paymaster 📜":
       message =
-        "You've selected the Allowlist Paymaster. Please proceed with the transaction.";
+        "You've selected the Allowlist Paymaster. Let's see if you are on the list!";
       break;
     case "Gasless Paymaster 🆓":
       message =
-        "You've selected the Gasless Paymaster. Ensure you have enough funds for the transaction.";
+        "You've selected the Gasless Paymaster. Things are going to be cheap for you!";
       break;
     case "ERC20Fixed Paymaster 🎫":
       message =
-        "You've selected the ERC20Fixed Paymaster. You will need to input the ERC20Fixed Paymaster address and the token contract address that is required for the paymaster.";
+        "You've selected the ERC20Fixed Paymaster. You will need to input the token contract address that is required for the paymaster.";
       additionalInputNeeded = true;
       break;
     case "ERC721Gated Paymaster 🎨":
       message =
-        "You've selected the ERC721Gated Paymaster. You will need to input the ERC721Gated Paymaster address and the NFT contract address that is gating the paymaster.";
+        "You've selected the ERC721Gated Paymaster. You will need to input the NFT contract address that is gating the paymaster.";
       additionalInputNeeded = true;
       break;
     default:

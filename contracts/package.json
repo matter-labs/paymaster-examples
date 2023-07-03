@@ -27,6 +27,9 @@
   "scripts": {
     "test": "NODE_ENV=test hardhat test --network zkSyncTestnet",
     "deploy": "hardhat deploy-zksync",
+    "greeter": "hardhat deploy-zksync --script greeter.ts",
+    "gasless": "hardhat deploy-zksync --script gaslessPaymaster.ts",
+    "allowList": "hardhat deploy-zksync --script allowListPaymaster.ts",
     "compile": "hardhat compile",
     "format": "prettier --write \"{deploy,test}/**/*.{ts,js,jsx,tsx}\""
   },
