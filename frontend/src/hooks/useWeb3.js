@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Web3Provider } from "zksync-web3";
+import { ethers } from "ethers";
 
 const useWeb3 = ( selectedPaymaster ) => {
   const [provider, setProvider] = useState(null);
@@ -25,7 +26,7 @@ const useWeb3 = ( selectedPaymaster ) => {
         const signerInstance = provider.getSigner();
         setSigner(signerInstance);
         const signerBalance = await signerInstance.getBalance();
-        setSignerBalance(signerBalance);
+        setSignerBalance(ethers.utils.formatEther(signerBalance));
       }
     };
 

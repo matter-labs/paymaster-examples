@@ -30,6 +30,10 @@
     "greeter": "hardhat deploy-zksync --script greeter.ts",
     "gasless": "hardhat deploy-zksync --script gaslessPaymaster.ts",
     "allowList": "hardhat deploy-zksync --script allowListPaymaster.ts",
+    "nftGated": "hardhat deploy-zksync --script erc721gatedPaymaster.ts",
+    "fixedToken": "hardhat deploy-zksync --script erc20fixedPaymaster.ts",
+    "nft": "hardhat deploy-zksync --script erc721.ts",
+    "token": "hardhat deploy-zksync --script erc20.ts",
     "compile": "hardhat compile",
     "format": "prettier --write \"{deploy,test}/**/*.{ts,js,jsx,tsx}\""
   },
