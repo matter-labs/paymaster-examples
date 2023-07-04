@@ -11,3 +11,4 @@ export const ERC721_GATED_PAYMASTER = "ERC721Gated Paymaster 🎨";
 export const ERC20_GATED_PAYMASTER = "ERC20Fixed Paymaster 🎫";
 export const GASLESS_PAYMASTER = "Gasless Paymaster 🆓";
 export const ALLOWLIST_PAYMASTER = "Allowlist Paymaster 📜";
+export const TESTNET_EXPLORER_URL = "https://goerli.explorer.zksync.io/tx/"

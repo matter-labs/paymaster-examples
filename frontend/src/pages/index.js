@@ -23,6 +23,7 @@ import {
 import InstructionsCard from "@/components/InstructionsCard";
 
 const Home = () => {
+  // State variables
   const [greeterContractInstance, setGreeterContractInstance] = useState(null);
   const [additionalContractInstance, setAdditionalContractInstance] =
     useState(null);
@@ -39,7 +40,7 @@ const Home = () => {
   const [additionalInput, setAdditionalInput] = useState("");
   const [txDetails, setTxDetails] = useState(null);
   const [qualify, isQualify] = useState("");
-  const { provider, signer, setProvider, setSigner } = useWeb3();
+  const { provider, signer, setProvider, setSigner, signerBalance } = useWeb3();
   const [loading, setLoading] = useState(true);
 
   // Handler to manage Paymaster selection
@@ -124,7 +125,7 @@ const Home = () => {
       const updatedGreeting = await greeterContractInstance.greet();
       setGreeting(updatedGreeting);
     } catch (error) {
-      console.error("Failed to update greeting:", error);
+      console.error("Failed to update greeting: ", error);
     }
   };
   // Handler to pay for greeting change
@@ -153,7 +154,7 @@ const Home = () => {
     }
   };
 
-  // Function to get Paymaster params
+  // Function to get Paymaster params; TODO: move these to utils
   const getPaymasterParams = async () => {
     let params;
 
@@ -161,7 +162,7 @@ const Home = () => {
       case "ERC20Fixed Paymaster 🎫":
         params = utils.getPaymasterParams(paymasterAddress, {
           type: "ApprovalBased",
-          token: TOKEN_ADDRESS,
+          token: additionalAddress, // assumes token address is set
           minimalAllowance: ethers.BigNumber.from(1),
           innerInput: new Uint8Array(),
         });
@@ -281,7 +282,13 @@ const Home = () => {
           You do not qualify and will have to pay your own way!
         </p>
       )}
-      {txDetails ? <TxDetails txHash={txDetails} /> : null}
+      {txDetails ? (
+        <TxDetails
+          txHash={txDetails}
+          signer={signer}
+          initialSignerBalance={signerBalance}
+        />
+      ) : null}
     </div>
   );
 };
