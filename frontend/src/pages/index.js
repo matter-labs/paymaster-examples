@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { utils, Contract } from "zksync-web3";
 import { ethers } from "ethers";
 import useWeb3 from "../hooks/useWeb3";
-import useAccountChanges from "../hooks/useAccountChanges";
 import Greeting from "../components/Greeting";
 import Input from "../components/Input";
 import Loading from "../components/Spinner";
@@ -23,6 +22,7 @@ import {
 import InstructionsCard from "@/components/InstructionsCard";
 
 const Home = () => {
+  // State variables
   const [greeterContractInstance, setGreeterContractInstance] = useState(null);
   const [additionalContractInstance, setAdditionalContractInstance] =
     useState(null);
@@ -39,7 +39,7 @@ const Home = () => {
   const [additionalInput, setAdditionalInput] = useState("");
   const [txDetails, setTxDetails] = useState(null);
   const [qualify, isQualify] = useState("");
-  const { provider, signer, setProvider, setSigner } = useWeb3();
+  const { provider, signer, signerBalance } = useWeb3();
   const [loading, setLoading] = useState(true);
 
   // Handler to manage Paymaster selection
@@ -108,6 +108,7 @@ const Home = () => {
     try {
       let txHandle;
       if (params) {
+        console.log("params::::", params)
         txHandle = await greeterContractInstance.setGreeting(
           newGreeting,
           params,
@@ -124,7 +125,7 @@ const Home = () => {
       const updatedGreeting = await greeterContractInstance.greet();
       setGreeting(updatedGreeting);
     } catch (error) {
-      console.error("Failed to update greeting:", error);
+      console.error("Failed to update greeting: ", error);
     }
   };
   // Handler to pay for greeting change
@@ -132,6 +133,7 @@ const Home = () => {
     try {
       const paymasterResult = await payWithPayMaster();
       if (paymasterResult.error) {
+        console.log("does it fail here?")
         // Handle the error message here
         if (
           paymasterResult.error.data.message.includes(
@@ -153,7 +155,7 @@ const Home = () => {
     }
   };
 
-  // Function to get Paymaster params
+  // Function to get Paymaster params; TODO: move these to utils
   const getPaymasterParams = async () => {
     let params;
 
@@ -161,7 +163,7 @@ const Home = () => {
       case "ERC20Fixed Paymaster 🎫":
         params = utils.getPaymasterParams(paymasterAddress, {
           type: "ApprovalBased",
-          token: TOKEN_ADDRESS,
+          token: additionalAddress, // assumes token address is set
           minimalAllowance: ethers.BigNumber.from(1),
           innerInput: new Uint8Array(),
         });
@@ -203,6 +205,7 @@ const Home = () => {
         },
       };
     } catch (error) {
+      console.log("this is where is fails :(", error)
       return { error: error };
     }
   };
@@ -281,7 +284,7 @@ const Home = () => {
           You do not qualify and will have to pay your own way!
         </p>
       )}
-      {txDetails ? <TxDetails txHash={txDetails} /> : null}
+      {txDetails ? <TxDetails txHash={txDetails} signer={signer} initialBalance={signerBalance} /> : null}
     </div>
   );
 };

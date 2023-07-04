@@ -1,18 +1,10 @@
 import { useState, useEffect } from "react";
-import { Web3Provider, Contract } from "zksync-web3";
-import {
-  GREETER_CONTRACT_ADDRESS,
-  GREETER_CONTRACT_ABI,
-  NFT_CONTRACT_ADDRESS,
-  NFT_CONTRACT_ABI,
-  ERC20_CONTRACT_ADDRESS,
-  ERC20_CONTRACT_ABI,
-} from "../constants/consts";
-import { ethers } from "ethers";
+import { Web3Provider } from "zksync-web3";
 
-const useWeb3 = (selectedPaymaster, greeterAddress, additionalAddress) => {
+const useWeb3 = ( selectedPaymaster ) => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
+  const [signerBalance, setSignerBalance] = useState(null);
 
   useEffect(() => {
     const setupWeb3 = async () => {
@@ -32,6 +24,8 @@ const useWeb3 = (selectedPaymaster, greeterAddress, additionalAddress) => {
 
         const signerInstance = provider.getSigner();
         setSigner(signerInstance);
+        const signerBalance = await signerInstance.getBalance();
+        setSignerBalance(signerBalance);
       }
     };
 
@@ -41,6 +35,7 @@ const useWeb3 = (selectedPaymaster, greeterAddress, additionalAddress) => {
   return {
     provider,
     signer,
+    signerBalance,
     setProvider,
     setSigner,
   };
