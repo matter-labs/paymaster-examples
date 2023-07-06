@@ -23,7 +23,7 @@ describe("ERC20fixedPaymaster", function () {
   let greeter: Contract;
   let token: Contract;
 
-  beforeEach(async function () {
+  before(async function () {
     // setup deployer
     provider = Provider.getDefaultProvider();
     wallet = new Wallet(PRIVATE_KEY, provider);

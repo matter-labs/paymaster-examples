@@ -24,7 +24,7 @@ describe("ERC721gatedPaymaster", function () {
   let greeter: Contract;
   let erc721: Contract;
 
-  beforeEach(async function () {
+  before(async function () {
     // setup deployer
     provider = Provider.getDefaultProvider();
     wallet = new Wallet(PRIVATE_KEY, provider);

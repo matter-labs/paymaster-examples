@@ -23,7 +23,7 @@ describe("GaslessPaymaster", function () {
   let paymaster: Contract;
   let greeter: Contract;
 
-  beforeEach(async function () {
+  before(async function () {
     // setup deployer
     provider = Provider.getDefaultProvider();
     wallet = new Wallet(PRIVATE_KEY, provider);
