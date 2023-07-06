@@ -1,4 +1,7 @@
+
 # Paymaster Examples Repository 📁
+
+![](./paymaster-examples.png)
 
 Welcome to the world of Paymasters!! 🎉 🌍 🎉
 
