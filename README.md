@@ -33,7 +33,7 @@ Do you want to see a specific type of Paymaster contract included in this reposi
 ## Official links 🔗
 
 - [Website](https://zksync.io/)
-- [Documentation](https://v2-docs.zksync.io/dev/)
+- [Documentation](https://era.zksync.io/docs/)
 - [GitHub](https://github.com/matter-labs)
 - [Twitter](https://twitter.com/zksync)
-- [Discord](https://discord.gg/nMaPGrDDwk)
+- [Discord](https://join.zksync.dev)
