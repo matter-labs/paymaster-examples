@@ -25,7 +25,11 @@ const InstructionsCard = () => {
       <p>Behind the scenes? 🕵️‍♀️</p>
       <p>
         Learn how paymaster works in our docs:{" "}
-        <a href="https://era.zksync.io/docs/reference/concepts/aa.html#paymasters">
+        <a
+          className="text-indigo-600 hover:underline"
+          href="https://era.zksync.io/docs/reference/concepts/aa.html#paymasters"
+          target="_blank"
+        >
           here.{" "}
         </a>
         The Gasless paymaster is my favourite! 🆓⛽

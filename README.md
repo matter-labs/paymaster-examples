@@ -1,4 +1,7 @@
+
 # Paymaster Examples Repository 📁
+
+![](./paymaster-examples.png)
 
 Welcome to the world of Paymasters!! 🎉 🌍 🎉
 
@@ -25,12 +28,12 @@ Here are some useful commands to get started:
 - `yarn format`: Runs prettier formatter.
 
 ## Have a request? 🙋‍♀️
-Do you want to see a specific type of Paymaster contract included in this repository? Head over to the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions/categories/feature-requests) and tell us about it! We highly value your feedback and are always open to new ideas for showcasing different use-cases and techniques.
+Do you want to see a specific type of Paymaster contract included in this repository? Head over to the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions/) and tell us about it! We highly value your feedback and are always open to new ideas for showcasing different use-cases and techniques.
 
 ## Official links 🔗
 
 - [Website](https://zksync.io/)
-- [Documentation](https://v2-docs.zksync.io/dev/)
+- [Documentation](https://era.zksync.io/docs/)
 - [GitHub](https://github.com/matter-labs)
 - [Twitter](https://twitter.com/zksync)
-- [Discord](https://discord.gg/nMaPGrDDwk)
+- [Discord](https://join.zksync.dev)

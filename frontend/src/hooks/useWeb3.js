@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Web3Provider } from "zksync-web3";
 import { ethers } from "ethers";
 
-const useWeb3 = ( selectedPaymaster ) => {
+const useWeb3 = (selectedPaymaster) => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [signerBalance, setSignerBalance] = useState(null);
@@ -18,7 +18,10 @@ const useWeb3 = ( selectedPaymaster ) => {
         const networkVersion = await provider
           .getNetwork()
           .then((network) => network.chainId);
-        if (networkVersion !== 280) {
+
+        console.log("networkVersion :>> ", networkVersion);
+        // supports both testnet and local-setup
+        if (networkVersion != 270 && networkVersion != 280) {
           alert("Please switch to the zkSync Testnet to use this application.");
           return;
         }
