@@ -30,6 +30,18 @@ Here are some useful commands to get started:
 ## Have a request? 🙋‍♀️
 Do you want to see a specific type of Paymaster contract included in this repository? Head over to the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions/) and tell us about it! We highly value your feedback and are always open to new ideas for showcasing different use-cases and techniques.
 
+## Contributing 🙋‍♂️
+
+We welcome all contributors! If you're interested in contributing to this project, please review the [CONTRIBUTING](./CONTRIBUTING.md) guide but for a quick summary:
+
+1. Fork the repository
+2. Create a new branch for your changes
+3. Implement your changes and commit them
+4. Push your changes to your fork
+5. Submit a pull request to the main repository
+
+Your contribution will be reviewed and, if it's beneficial to the project, merged into the main branch. Thank you for your interest in our project!
+
 ## Official links 🔗
 
 - [Website](https://zksync.io/)
