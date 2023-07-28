@@ -95,6 +95,7 @@ describe("AllowlistPaymaster", function () {
   it("should prevent non-owners from withdrawing funds", async function () {
     try {
       await paymaster.connect(userWallet).withdraw(userWallet.address);
+      throw new Error("Should not be able to withdraw funds");
     } catch (e) {
       expect(e.message).to.include("Ownable: caller is not the owner");
     }
@@ -104,6 +105,7 @@ describe("AllowlistPaymaster", function () {
     const notAllowedWallet = Wallet.createRandom().connect(provider);
     try {
       await executeGreetingTransaction(notAllowedWallet);
+      throw new Error("Should not be able to call Greeter");
     } catch (e) {
       expect(e.message).to.include("Account is not in allow list");
     }

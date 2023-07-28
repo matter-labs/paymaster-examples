@@ -116,6 +116,7 @@ describe("ERC20fixedPaymaster", function () {
   it("should prevent non-owners from withdrawing funds", async function () {
     try {
       await paymaster.connect(userWallet).withdraw(userWallet.address);
+      throw new Error("Should not be able to withdraw funds");
     } catch (e) {
       expect(e.message).to.include("Ownable: caller is not the owner");
     }
