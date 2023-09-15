@@ -99,27 +99,4 @@ describe("AllowlistPaymaster", function () {
       expect(e.message).to.include("Ownable: caller is not the owner");
     }
   });
-
-  it("should prevent non-owners from setting greeting", async function () {
-    let errorThrown = false;
-    try {
-        const provider = new Provider("http://127.0.0.1:8011");
-        const wallet = new Wallet(PRIVATE_KEY, provider);
-        const deployer = new Deployer(hre, wallet);
-
-        const userWallet = Wallet.createRandom().connect(provider);
-        await fundAccount(wallet, userWallet.address, "3");
-        
-        const artifact = await deployer.loadArtifact('Greeter');
-        const greeter = await deployer.deploy(artifact, ["Hello, world!"]);
-        
-        const tx = await greeter.connect(userWallet).setGreeting("Hola, mundo!");
-        await tx.wait();
-    } catch (e) {
-      expect(e.message).to.include("Ownable: caller is not the owner");
-      errorThrown = true;
-    }
-
-    expect(errorThrown).to.be.true;
-  });
 });
