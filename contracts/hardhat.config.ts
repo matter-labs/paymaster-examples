@@ -6,27 +6,28 @@ import "@matterlabs/hardhat-zksync-verify";
 import "@nomiclabs/hardhat-etherscan";
 
 const getNetworkConfig = () => {
-  const env = process.env.DEPLOY_ENV || 'local';
+  const env = process.env.DEPLOY_ENV || "local";
   switch (env) {
-    case 'local':
+    case "local":
       return {
         url: "http://localhost:3050",
         ethNetwork: "http://localhost:8545",
         zksync: true,
       };
-    case 'ci':
+    case "ci":
       return {
         url: "http://127.0.0.1:8011",
         ethNetwork: "goerli",
         zksync: true,
       };
-    case 'testnet':
+    case "testnet":
       return {
         url: "https://zksync2-testnet.zksync.dev",
         ethNetwork: "goerli",
         zksync: true,
         // Verification endpoint for Goerli
-        verifyURL: "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
+        verifyURL:
+          "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
       };
     default:
       throw new Error(`Unsupported DEPLOY_ENV: ${env}`);

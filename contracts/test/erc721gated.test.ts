@@ -1,17 +1,19 @@
 import { expect } from "chai";
 import { Wallet, Provider, Contract, utils } from "zksync-web3";
-import * as hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import * as ethers from "ethers";
+import hardhatConfig from "../hardhat.config";
 
-import { deployContract, fundAccount } from "./utils";
+import { deployContract, fundAccount, setupDeployer } from "./utils";
 
 // load env file
 import dotenv from "dotenv";
 dotenv.config();
 
 // load wallet private key from env file
-const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
+const PRIVATE_KEY =
+  process.env.WALLET_PRIVATE_KEY ||
+  "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
 describe("ERC721gatedPaymaster", function () {
   let provider: Provider;
@@ -25,11 +27,9 @@ describe("ERC721gatedPaymaster", function () {
   let erc721: Contract;
 
   before(async function () {
+    const deployUrl = hardhatConfig.networks.zkSyncTestnet.url;
     // setup deployer
-    provider = new Provider("http://127.0.0.1:8011");
-    wallet = new Wallet(PRIVATE_KEY, provider);
-    deployer = new Deployer(hre, wallet);
-
+    [provider, wallet, deployer] = setupDeployer(deployUrl, PRIVATE_KEY);
     // setup new wallet
     userWallet = Wallet.createRandom();
     userWallet = new Wallet(userWallet.privateKey, provider);
