@@ -11,7 +11,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // load wallet private key from env file
-const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
+const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
 describe("AllowlistPaymaster", function () {
   let provider: Provider;
@@ -25,7 +25,7 @@ describe("AllowlistPaymaster", function () {
 
   before(async function () {
     // setup deployer
-    provider = Provider.getDefaultProvider();
+    provider = new Provider("http://127.0.0.1:8011");
     wallet = new Wallet(PRIVATE_KEY, provider);
     deployer = new Deployer(hre, wallet);
     // setup new wallet
@@ -100,12 +100,26 @@ describe("AllowlistPaymaster", function () {
     }
   });
 
-  it("should prevent non-allowed user from calling Greeter", async function () {
-    const notAllowedWallet = Wallet.createRandom().connect(provider);
+  it("should prevent non-owners from setting greeting", async function () {
+    let errorThrown = false;
     try {
-      await executeGreetingTransaction(notAllowedWallet);
+        const provider = new Provider("http://127.0.0.1:8011");
+        const wallet = new Wallet(PRIVATE_KEY, provider);
+        const deployer = new Deployer(hre, wallet);
+
+        const userWallet = Wallet.createRandom().connect(provider);
+        await fundAccount(wallet, userWallet.address, "3");
+        
+        const artifact = await deployer.loadArtifact('Greeter');
+        const greeter = await deployer.deploy(artifact, ["Hello, world!"]);
+        
+        const tx = await greeter.connect(userWallet).setGreeting("Hola, mundo!");
+        await tx.wait();
     } catch (e) {
-      expect(e.message).to.include("Account is not in allow list");
+      expect(e.message).to.include("Ownable: caller is not the owner");
+      errorThrown = true;
     }
+
+    expect(errorThrown).to.be.true;
   });
 });

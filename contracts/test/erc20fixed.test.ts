@@ -11,7 +11,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // load wallet private key from env file
-const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
+const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
 describe("ERC20fixedPaymaster", function () {
   let provider: Provider;
@@ -25,7 +25,7 @@ describe("ERC20fixedPaymaster", function () {
 
   before(async function () {
     // setup deployer
-    provider = Provider.getDefaultProvider();
+    provider = new Provider("http://127.0.0.1:8011");
     wallet = new Wallet(PRIVATE_KEY, provider);
     deployer = new Deployer(hre, wallet);
     // setup new wallet
