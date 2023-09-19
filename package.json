@@ -12,6 +12,7 @@
   },
   "scripts": {
     "test:contracts": "yarn workspace contracts test",
+    "ci:tests": "yarn workspace contracts ci:tests",
     "deploy:contracts": "yarn workspace contracts deploy", 
     "compile:contracts": "yarn workspace contracts compile",
     "deploy:greeter": "yarn workspace contracts greeter",

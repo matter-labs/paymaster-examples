@@ -1,0 +1,27 @@
+name: run
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  tests:
+    name: unit-tests
+    strategy:
+      matrix:
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    
+    - name: Run Era Test Node
+      uses: dutterbutter/era-test-node-action@latest
+
+    - name: Install Dependencies
+      run: yarn install
+    
+    - name: Run Tests
+      run: |
+        yarn ci:tests

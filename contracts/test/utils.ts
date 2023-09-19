@@ -1,5 +1,6 @@
-import { Contract, Wallet } from "zksync-web3";
+import { Contract, Wallet, Provider } from "zksync-web3";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import * as hre from "hardhat";
 import * as ethers from "ethers";
 
 async function deployContract(
@@ -28,4 +29,16 @@ async function fundAccount(wallet: Wallet, address: string, amount: string) {
   console.log(`Account ${address} funded with ${amount}`);
 }
 
-export { deployContract, fundAccount };
+function setupDeployer(
+  url: string,
+  privateKey: string,
+): [Provider, Wallet, Deployer] {
+  // setup deployer
+  const provider = new Provider(url);
+  const wallet = new Wallet(privateKey, provider);
+  const deployer = new Deployer(hre, wallet);
+
+  return [provider, wallet, deployer];
+}
+
+export { deployContract, fundAccount, setupDeployer };
