@@ -38,8 +38,8 @@ contract TimeBasedPaymaster is IPaymaster, Ownable {
 
     bytes4 paymasterInputSelector = bytes4(_transaction.paymasterInput[0:4]);
     if (paymasterInputSelector == IPaymasterFlow.general.selector) {
-      uint256 startTime = (block.timestamp / 86400) * 86400 + 9 hours;
-      uint256 endTime = startTime + 3 minutes;
+      uint256 startTime = (block.timestamp / 86400) * 86400 + 14 hours;
+      uint256 endTime = startTime + 10 minutes;
 
       require(
         block.timestamp >= startTime && block.timestamp <= endTime,

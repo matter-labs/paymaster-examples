@@ -9,7 +9,9 @@ import { deployContract, fundAccount, setupDeployer } from "./utils";
 import dotenv from "dotenv";
 dotenv.config();
 
-const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
+const PRIVATE_KEY =
+  process.env.WALLET_PRIVATE_KEY ||
+  "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
 
 describe("TimeBasedPaymaster", function () {
   let provider: Provider;
@@ -29,11 +31,6 @@ describe("TimeBasedPaymaster", function () {
     greeter = await deployContract(deployer, "Greeter", ["Hi"]);
     await fundAccount(wallet, paymaster.address, "3");
   });
-
-  async function setTimeTo(timestamp) {
-    await provider.send("evm_setNextBlockTimestamp", [timestamp]);
-    await provider.send("evm_mine", []);
-  }
 
   async function executeGreetingTransaction(user: Wallet) {
     const gasPrice = await provider.getGasPrice();
@@ -61,27 +58,36 @@ describe("TimeBasedPaymaster", function () {
   it("should cost the user no gas during the time window", async function () {
     // Arrange
     const currentDate = new Date();
-    currentDate.setUTCHours(23);
-    currentDate.setUTCMinutes(10);
+    currentDate.setUTCHours(14);
+    currentDate.setUTCMinutes(1);
     currentDate.setUTCSeconds(0);
     currentDate.setUTCMilliseconds(0);
     const targetTime = Math.floor(currentDate.getTime() / 1000);
-    await setTimeTo(targetTime);
+    await provider.send("evm_setNextBlockTimestamp", [targetTime]);
+
     // Act
     const initialBalance = await userWallet.getBalance();
     await executeGreetingTransaction(userWallet);
+    await provider.send("evm_mine", []);
     const newBalance = await userWallet.getBalance();
+
     // Assert
     expect(newBalance.toString()).to.equal(initialBalance.toString());
   });
 
-  it("should cost the user gas outside the time window", async function () {
+  it("should fail due to Paymaster validation error outside the time window", async function () {
     // Arrange
-    const initialBalance = await wallet.getBalance();
+    let errorOccurred = false;
+
     // Act
-    await executeGreetingTransaction(wallet);
-    const newBalance = await wallet.getBalance();
+    try {
+      await executeGreetingTransaction(wallet);
+    } catch (error) {
+      errorOccurred = true;
+      expect(error.message).to.include("Paymaster validation error");
+    }
+
     // Assert
-    expect(newBalance.lt(initialBalance)).to.be.true;
+    expect(errorOccurred).to.be.true;
   });
 });
