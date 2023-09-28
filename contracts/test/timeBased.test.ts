@@ -73,6 +73,7 @@ describe("TimeBasedPaymaster", function () {
 
     // Assert
     expect(newBalance.toString()).to.equal(initialBalance.toString());
+    expect(await greeter.greet()).to.equal("Hola, mundo!");
   });
 
   it("should fail due to Paymaster validation error outside the time window", async function () {

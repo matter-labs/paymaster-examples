@@ -43,7 +43,7 @@ contract TimeBasedPaymaster is IPaymaster, Ownable {
 
       require(
         block.timestamp >= startTime && block.timestamp <= endTime,
-        "Transactions can only be processed between 9:00 AM - 9:03 AM EST"
+        "Transactions can only be processed between 14:00 - 14:10"
       );
 
       uint256 requiredETH = _transaction.gasLimit * _transaction.maxFeePerGas;
