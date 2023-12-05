@@ -1,10 +1,12 @@
-import { Provider, Wallet } from "zksync-web3";
 import * as ethers from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 
+import { Provider, Wallet } from "zksync-web3";
+
+import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 // load env file
 import dotenv from "dotenv";
+
 dotenv.config();
 
 // load wallet private key from env file
@@ -15,7 +17,7 @@ if (!PRIVATE_KEY)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the TimeBasedPaymaster contract...`);
-  const provider = new Provider("https://testnet.era.zksync.dev");
+  const provider = new Provider("https://sepolia.era.zksync.dev/");
 
   const wallet = new Wallet(PRIVATE_KEY);
   const deployer = new Deployer(hre, wallet);

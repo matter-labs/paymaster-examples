@@ -1,9 +1,9 @@
-import { HardhatUserConfig } from "hardhat/config";
-
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
 import "@nomiclabs/hardhat-etherscan";
+
+import { HardhatUserConfig } from "hardhat/config";
 
 const getNetworkConfig = () => {
   const env = process.env.DEPLOY_ENV || "local";
@@ -17,17 +17,17 @@ const getNetworkConfig = () => {
     case "ci":
       return {
         url: "http://127.0.0.1:8011",
-        ethNetwork: "goerli",
+        ethNetwork: "sepolia",
         zksync: true,
       };
     case "testnet":
       return {
-        url: "https://zksync2-testnet.zksync.dev",
-        ethNetwork: "goerli",
+        url: "https://sepolia.era.zksync.dev",
+        ethNetwork: "sepolia",
         zksync: true,
-        // Verification endpoint for Goerli
+        // Verification endpoint for Sepolia
         verifyURL:
-          "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
+          "https://explorer.sepolia.era.zksync.dev/contract_verification",
       };
     default:
       throw new Error(`Unsupported DEPLOY_ENV: ${env}`);
