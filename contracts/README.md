@@ -55,4 +55,4 @@ If you would like to see a specific type of Paymaster contract included in this 
 - [Documentation](https://v2-docs.zksync.io/dev/)
 - [GitHub](https://github.com/matter-labs)
 - [Twitter](https://twitter.com/zksync)
-- [Discord](https://discord.gg/nMaPGrDDwk)
+- [Discord](https://join.zksync.dev/)
