@@ -1,9 +1,8 @@
-import * as ethers from "ethers";
-
 import { Provider, Wallet } from "zksync-web3";
-
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import * as ethers from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+
 // load env file
 import dotenv from "dotenv";
 
