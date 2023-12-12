@@ -1,10 +1,10 @@
-import { Provider, Wallet } from "zksync-web3";
 import * as ethers from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { Wallet } from "zksync-web3";
 // load env file
 import dotenv from "dotenv";
+
 dotenv.config();
 
 // load wallet private key from env file
@@ -20,8 +20,6 @@ if (!RECIPIENT_ADDRESS)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the MyERC20 contract...`);
-  const provider = new Provider("https://testnet.era.zksync.dev");
-
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
   const wallet = new Wallet(PRIVATE_KEY);

@@ -27,7 +27,7 @@ describe("ERC721gatedPaymaster", function () {
   let erc721: Contract;
 
   before(async function () {
-    const deployUrl = hardhatConfig.networks.zkSyncTestnet.url;
+    const deployUrl = hardhatConfig.networks.zkSyncInMemory.url;
     // setup deployer
     [provider, wallet, deployer] = setupDeployer(deployUrl, PRIVATE_KEY);
     // setup new wallet

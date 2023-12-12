@@ -1,10 +1,13 @@
-import { Provider, Wallet } from "zksync-web3";
 import * as ethers from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { Provider, Wallet } from "zksync-web3";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-
+import {
+  HardhatRuntimeEnvironment,
+  HttpNetworkUserConfig,
+} from "hardhat/types";
 // load env file
 import dotenv from "dotenv";
+
 dotenv.config();
 
 // load wallet private key from env file
@@ -15,8 +18,9 @@ if (!PRIVATE_KEY)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the GaslessPaymaster contract...`);
-  const provider = new Provider("https://testnet.era.zksync.dev");
-
+  // Currently targeting the Sepolia zkSync testnet
+  const network = hre.userConfig.networks?.zkSyncTestnet;
+  const provider = new Provider((network as HttpNetworkUserConfig).url);
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
   const wallet = new Wallet(PRIVATE_KEY);
