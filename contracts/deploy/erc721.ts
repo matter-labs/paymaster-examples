@@ -1,5 +1,4 @@
-import { Provider, Wallet } from "zksync-web3";
-
+import { Wallet } from "zksync-web3";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 // load env file
@@ -20,7 +19,6 @@ if (!RECIPIENT_ADDRESS)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the MyNFT contract...`);
-  const provider = new Provider("https://sepolia.era.zksync.dev/");
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync

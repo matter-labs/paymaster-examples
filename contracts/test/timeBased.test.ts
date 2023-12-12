@@ -22,7 +22,7 @@ describe("TimeBasedPaymaster", function () {
   let greeter: Contract;
 
   before(async function () {
-    const deployUrl = hardhatConfig.networks.zkSyncTestnet.url;
+    const deployUrl = hardhatConfig.networks.zkSyncInMemory.url;
     [provider, wallet, deployer] = setupDeployer(deployUrl, PRIVATE_KEY);
     userWallet = Wallet.createRandom();
     console.log(`User wallet's address: ${userWallet.address}`);
@@ -55,6 +55,21 @@ describe("TimeBasedPaymaster", function () {
     await setGreetingTx.wait();
   }
 
+  it("should fail due to Paymaster validation error outside the time window", async function () {
+    // Arrange
+    let errorOccurred = false;
+
+    // Act
+    try {
+      await executeGreetingTransaction(wallet);
+    } catch (error) {
+      errorOccurred = true;
+      expect(error.message).to.include("Paymaster validation error");
+    }
+    // Assert
+    expect(errorOccurred).to.be.true;
+  });
+
   it("should cost the user no gas during the time window", async function () {
     // Arrange
     const currentDate = new Date();
@@ -74,21 +89,5 @@ describe("TimeBasedPaymaster", function () {
     // Assert
     expect(newBalance.toString()).to.equal(initialBalance.toString());
     expect(await greeter.greet()).to.equal("Hola, mundo!");
-  });
-
-  it("should fail due to Paymaster validation error outside the time window", async function () {
-    // Arrange
-    let errorOccurred = false;
-
-    // Act
-    try {
-      await executeGreetingTransaction(wallet);
-    } catch (error) {
-      errorOccurred = true;
-      expect(error.message).to.include("Paymaster validation error");
-    }
-
-    // Assert
-    expect(errorOccurred).to.be.true;
   });
 });
