@@ -57,7 +57,7 @@ yarn format
 
 ## Where Can I Ask for Help?
 
-If you need help with contributing or have any questions or concerns, feel free to open an issue or start a discussion in our [zkSync Community Hub](https://github.com/zkSync-Community-Hub/zkync-developers/discussions). We are here to help you.
+If you need help with contributing or have any questions or concerns, feel free to open an issue or start a discussion in our [zkSync Community Hub](https://github.com/zkSync-Community-Hub/zksync-developers/discussions). We are here to help you.
 
 ## What's Next?
 
