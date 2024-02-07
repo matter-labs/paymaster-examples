@@ -47,7 +47,7 @@ To run tests, you'll need to start the zkSync local environment. Please refer to
 Without starting the zkSync local environment, the tests will fail with an error: `Error: could not detect network (event="noNetwork", code=NETWORK_ERROR, version=providers/5.7.2)`
 
 ## Have a request? 🙋‍♀️
-If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zkync-developers/discussions/categories/feature-requests)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
+If you would like to see a specific type of Paymaster contract included in this repository, please let us know in the [zkync-developers/discussions](https://github.com/zkSync-Community-Hub/zksync-developers/discussions)! We value your feedback and are always open to new ideas for demonstrating different use-cases and techniques.
 
 ## Official links 🔗
 
