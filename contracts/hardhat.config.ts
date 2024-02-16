@@ -33,6 +33,12 @@ const config: HardhatUserConfig = {
       verifyURL:
         "https://explorer.sepolia.era.zksync.dev/contract_verification",
     },
+    zkSyncMainnet: {
+      url: "https://mainnet.era.zksync.io",
+      ethNetwork: "mainnet",
+      zksync: true,
+      verifyURL: "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
+    },
   },
   solidity: {
     version: "0.8.17",
