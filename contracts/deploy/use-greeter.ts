@@ -1,6 +1,6 @@
 import { Provider } from "zksync-web3";
 import * as ethers from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types";
 
 // load env file
 import dotenv from "dotenv";
@@ -14,7 +14,7 @@ const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
 
-// Address of the contract on zksync testnet
+// Address of the greeter contract on zksync
 const CONTRACT_ADDRESS = "";
 
 if (!CONTRACT_ADDRESS) throw "⛔️ Contract address not provided";
@@ -25,7 +25,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   // Initialize the provider.
   // @ts-ignore
-  const provider = new Provider(hre.userConfig.networks?.zkSyncTestnet?.url);
+  const provider = new Provider((hre.network.config as HttpNetworkUserConfig).url);
   const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 
   // Initialise contract instance

@@ -23,9 +23,7 @@ if (!NFT_COLLECTION_ADDRESS)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the ERC721gatedPaymaster contract...`);
-  // Currently targeting the Sepolia zkSync testnet
-  const network = hre.userConfig.networks?.zkSyncTestnet;
-  const provider = new Provider((network as HttpNetworkUserConfig).url);
+  const provider = new Provider((hre.network.config as HttpNetworkUserConfig).url);
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
