@@ -23,7 +23,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const network = hre.userConfig.networks?.zkSyncTestnet;
   const provider = new Provider((network as HttpNetworkUserConfig).url);
 
-  // The wallet that will deploy the token and the paymaster
+  // The wallet that will deploy the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
   const wallet = new Wallet(PRIVATE_KEY);
   const deployer = new Deployer(hre, wallet);

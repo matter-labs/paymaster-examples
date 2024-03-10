@@ -61,12 +61,14 @@ contract SignatureBasedPaymaster is IPaymaster, Ownable, EIP712 {
             );
             (uint lastTimestamp, bytes memory sig) = abi.decode(innerInputs,(uint256,bytes));
             
-            // Verify if token is the correct one
+            // Verify signature expiry based on timestamp. 
+            // Timestamp is used in signature hash, hence cannot be faked. 
             require(block.timestamp <= lastTimestamp, "Paymaster: Signature expired");
-            // We verify that the user has provided enough allowance
+            // Get user address from transaction.from
             address userAddress = address(uint160(_transaction.from));
+            // Generate hash
             bytes32 hash = keccak256(abi.encode(SIGNATURE_TYPEHASH, userAddress,lastTimestamp, nonces[userAddress]++));
-
+            // Hashing with domain separator includes chain id. Hence prevention to signature replay atttacks.
             bytes32 digest = _hashTypedDataV4(hash);
             require(signer == digest.recover(sig),"Paymaster: Invalid signer");
  

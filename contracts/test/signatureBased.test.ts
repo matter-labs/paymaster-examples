@@ -39,7 +39,6 @@ describe("SignatureBasedPaymaster", function () {
     greeter = await deployContract(deployer, "Greeter", ["Hi"]);
     await fundAccount(wallet, paymaster.address, "3");
     console.log(`Paymaster current signer: ${signerWallet.address}`);
-    console.log("--------------------------------");
   });
 
   async function createSignatureData(
@@ -78,7 +77,7 @@ describe("SignatureBasedPaymaster", function () {
 
     const signature = await signer._signTypedData(domain, types, values);
 
-    console.log("Signature generated successfully !");
+    //console.log("Signature generated successfully !");
     //console.log("Signer : " + signer.address);
     //console.log("Paymaster : "+ paymaster.address);
     //console.log(`Signature valid till: ${lastTimestamp} for user: ${user.address} and nonce: ${nonce}`);
