@@ -21,6 +21,7 @@
     "deploy:nftGated": "yarn workspace contracts nftGated",
     "deploy:fixedToken": "yarn workspace contracts fixedToken",
     "deploy:timeBased": "yarn workspace contracts timeBased",
+    "deploy:signatureBased":"yarn workspace contracts signatureBased",
     "deploy:nft": "yarn workspace contracts nft",
     "deploy:token": "yarn workspace contracts token",
     "serve:ui": "yarn workspace frontend dev",

@@ -34,6 +34,7 @@
     "nftGated": "hardhat deploy-zksync --script erc721gatedPaymaster.ts",
     "fixedToken": "hardhat deploy-zksync --script erc20fixedPaymaster.ts",
     "timeBased": "hardhat deploy-zksync --script timeBasedPaymaster.ts",
+    "signatureBased":"hardhat deploy-zksync --script signatureBasedPaymaster.ts",
     "nft": "hardhat deploy-zksync --script erc721.ts",
     "token": "hardhat deploy-zksync --script erc20.ts",
     "compile": "hardhat compile",
