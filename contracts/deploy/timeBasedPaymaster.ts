@@ -18,9 +18,7 @@ if (!PRIVATE_KEY)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the TimeBasedPaymaster contract...`);
-  // Currently targeting the Sepolia zkSync testnet
-  const network = hre.userConfig.networks?.zkSyncTestnet;
-  const provider = new Provider((network as HttpNetworkUserConfig).url);
+  const provider = new Provider((hre.network.config as HttpNetworkUserConfig).url);
 
   const wallet = new Wallet(PRIVATE_KEY);
   const deployer = new Deployer(hre, wallet);

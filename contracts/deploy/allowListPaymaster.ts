@@ -1,8 +1,7 @@
 import { Provider, Wallet } from "zksync-web3";
 import * as ethers from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { HttpNetworkUserConfig } from "hardhat/types";
 
 // load env file
 import dotenv from "dotenv";
@@ -17,9 +16,7 @@ if (!PRIVATE_KEY)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the AllowlistPaymaster contract...`);
-  // Currently targeting the Sepolia zkSync testnet
-  const network = hre.userConfig.networks?.zkSyncTestnet;
-  const provider = new Provider((network as HttpNetworkUserConfig).url);
+  const provider = new Provider((hre.network.config as HttpNetworkUserConfig).url);
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
