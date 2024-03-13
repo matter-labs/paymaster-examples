@@ -44,13 +44,13 @@ describe("SignatureBasedPaymaster", function () {
   async function createSignatureData(
     signer: Wallet,
     user: Wallet,
-    delay: number,
+    expiryInSeconds: number,
   ) {
     const nonce = await paymaster.nonces(user.address);
     const typeHash = await paymaster.SIGNATURE_TYPEHASH();
     const eip712Domain = await paymaster.eip712Domain();
     const currentTimestamp = (await provider.getBlock("latest")).timestamp;
-    const lastTimestamp = currentTimestamp + delay; // 300 seconds
+    const lastTimestamp = currentTimestamp + expiryInSeconds; // 300 seconds
 
     const domain = {
       name: eip712Domain[1],
@@ -76,11 +76,6 @@ describe("SignatureBasedPaymaster", function () {
     };
 
     const signature = await signer._signTypedData(domain, types, values);
-
-    //console.log("Signature generated successfully !");
-    //console.log("Signer : " + signer.address);
-    //console.log("Paymaster : "+ paymaster.address);
-    //console.log(`Signature valid till: ${lastTimestamp} for user: ${user.address} and nonce: ${nonce}`);
     return [signature, lastTimestamp];
   }
 
@@ -110,14 +105,13 @@ describe("SignatureBasedPaymaster", function () {
     await setGreetingTx.wait();
   }
 
-  it("should allow user to use paymaster if signature valid and used before delay and nonce should be updated", async function () {
-    let errorOccurred = false;
-    const delay = 300;
+  it("should allow user to use paymaster if signature valid and used before expiry and nonce should be updated", async function () {
+    const expiryInSeconds = 300;
     const beforeNonce = await paymaster.nonces(userWallet.address);
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
       userWallet,
-      delay,
+      expiryInSeconds,
     );
 
     const innerInput = ethers.utils.arrayify(
@@ -132,12 +126,12 @@ describe("SignatureBasedPaymaster", function () {
   it("should fail to use paymaster if signature signed with invalid signer", async function () {
     // Arrange
     let errorOccurred = false;
-    const delay = 300;
+    const expiryInSeconds = 300;
     const invalidSigner = Wallet.createRandom();
     const [sig, lastTimestamp] = await createSignatureData(
       invalidSigner,
       userWallet,
-      delay,
+      expiryInSeconds,
     );
 
     const innerInput = ethers.utils.arrayify(
@@ -154,22 +148,22 @@ describe("SignatureBasedPaymaster", function () {
     expect(errorOccurred).to.be.true;
   });
 
-  it("should fail to use paymaster if signature expired as delay is passed ", async function () {
+  it("should fail to use paymaster if signature expired as lastTimestamp is passed ", async function () {
     // Arrange
 
     let errorOccurred = false;
-    const delay = 300;
+    const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
       userWallet,
-      delay,
+      expiryInSeconds,
     );
 
     const innerInput = ethers.utils.arrayify(
       abiCoder.encode(["uint256", "bytes"], [lastTimestamp, sig]),
     );
     let newTimestamp: number = +lastTimestamp + 1;
-    await provider.send("evm_increaseTime", [delay + 1]);
+    await provider.send("evm_increaseTime", [newTimestamp]);
     await provider.send("evm_mine", []);
 
     // Act
@@ -188,11 +182,11 @@ describe("SignatureBasedPaymaster", function () {
     // Arrange
 
     let errorOccurred = false;
-    const delay = 300;
+    const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
       userWallet,
-      delay,
+      expiryInSeconds,
     );
 
     const innerInput = ethers.utils.arrayify(
@@ -215,11 +209,11 @@ describe("SignatureBasedPaymaster", function () {
     // Arrange
 
     let errorOccurred = false;
-    const delay = 300;
+    const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
       userWallet,
-      delay,
+      expiryInSeconds,
     );
 
     const innerInput = ethers.utils.arrayify(
@@ -243,11 +237,11 @@ describe("SignatureBasedPaymaster", function () {
     const newSigner = Wallet.createRandom();
     await paymaster.changeSigner(newSigner.address);
 
-    const delay = 300;
+    const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       newSigner,
       userWallet,
-      delay,
+      expiryInSeconds,
     );
 
     const innerInput = ethers.utils.arrayify(

@@ -11,13 +11,18 @@ import {TransactionHelper, Transaction} from "@matterlabs/zksync-contracts/l2/sy
 
 import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
 
+/// @notice This smart contract pays the gas fees on behalf of users that provide valid signature from the signer.
+/// @dev This contract is controlled by an owner, who can update the signer, cancel a user's nonce and withdraw funds from contract. 
 contract SignatureBasedPaymaster is IPaymaster, Ownable, EIP712 {
-    address public signer; 
-    mapping(address => uint256) public nonces;
     using ECDSA for bytes32;
+    // Note - EIP712 Domain compliance typehash. TYPES should exactly match while signing signature to avoid signature failure. 
     bytes32 public constant SIGNATURE_TYPEHASH = keccak256(
     "SignatureBasedPaymaster(address userAddress,uint256 lastTimestamp,uint256 nonces)"
     );
+    // All signatures should be validated based on signer
+    address public signer; 
+    // Mapping user => nonce to guard against signature re-play attack. 
+    mapping(address => uint256) public nonces;
 
     modifier onlyBootloader() {
         require(
@@ -28,8 +33,11 @@ contract SignatureBasedPaymaster is IPaymaster, Ownable, EIP712 {
         _;
     }
 
+/// @param _signer Sets the signer to validate against signatures
+/// @dev Changes in EIP712 constructor arguments - "name","version" would update domainSeparator which should be taken into considertion while signing. 
     constructor(address _signer) EIP712("SignatureBasedPaymaster","1") {
         require(_signer != address(0), "Signer cannot be address(0)");
+        // Owner can be signer too. 
         signer = _signer;
     }
 
@@ -54,22 +62,24 @@ contract SignatureBasedPaymaster is IPaymaster, Ownable, EIP712 {
             _transaction.paymasterInput[0:4]
         );
         if (paymasterInputSelector == IPaymasterFlow.general.selector) {
-
+            // Note - We first need to decode innerInputs data to bytes.
             (bytes memory innerInputs) = abi.decode(
                 _transaction.paymasterInput[4:],
                 (bytes)
             );
+            // Note - Decode the innerInputs as per encoding. Here, we have encoded lastTimestamp and signature in innerInputs
             (uint lastTimestamp, bytes memory sig) = abi.decode(innerInputs,(uint256,bytes));
             
             // Verify signature expiry based on timestamp. 
-            // Timestamp is used in signature hash, hence cannot be faked. 
+            // lastTimestamp is used in signature hash, hence cannot be faked. 
             require(block.timestamp <= lastTimestamp, "Paymaster: Signature expired");
             // Get user address from transaction.from
             address userAddress = address(uint160(_transaction.from));
             // Generate hash
             bytes32 hash = keccak256(abi.encode(SIGNATURE_TYPEHASH, userAddress,lastTimestamp, nonces[userAddress]++));
-            // Hashing with domain separator includes chain id. Hence prevention to signature replay atttacks.
+            // EIP712._hashTypedDataV4 hashes with domain separator that includes chain id. Hence prevention to signature replay atttacks.
             bytes32 digest = _hashTypedDataV4(hash);
+            // Revert if signer not matched with recovered address. Reverts on address(0) as well.
             require(signer == digest.recover(sig),"Paymaster: Invalid signer");
  
 
@@ -101,23 +111,27 @@ contract SignatureBasedPaymaster is IPaymaster, Ownable, EIP712 {
     ) external payable override onlyBootloader {
         // Refunds are not supported yet.
     }
-  function withdraw(address _to) external onlyOwner {
+    function withdraw(address _to) external onlyOwner {
         // send paymaster funds to the owner
         (bool success, ) = payable(_to).call{value: address(this).balance}("");
         require(success, "Failed to withdraw funds from paymaster.");
 
     }
-
     receive() external payable {}
 
-    function changeSigner(address _signer) onlyOwner public{
+    /// @dev Only owner should be able to change signer.
+    /// @param _signer New signer address
+    function changeSigner(address _signer) onlyOwner public {
         signer = _signer;
     }
-    function cancelNonce(address _userAddress) onlyOwner public{
+    /// @dev Only owner should be able to update user nonce. 
+    /// @dev There could be a scenario where owner needs to cancel paying gas for a certain user transaction. 
+    /// @param _userAddress user address to update the nonce. 
+    function cancelNonce(address _userAddress) onlyOwner public {
         nonces[_userAddress]++;
     }
 
-    function domainSeparator() public view returns(bytes32){
+    function domainSeparator() public view returns(bytes32) {
         return _domainSeparatorV4();
     }
 }

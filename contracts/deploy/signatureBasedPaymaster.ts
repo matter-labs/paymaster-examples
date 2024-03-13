@@ -50,23 +50,26 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   ).wait();
 
   let paymasterBalance = await provider.getBalance(paymaster.address);
-  console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
-
-  // Verify contract programmatically
-  //
-  // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName =
-    "contracts/paymasters/SignatureBasedPaymaster.sol:SignatureBasedPaymaster";
-  const verificationId = await hre.run("verify:verify", {
-    address: paymaster.address,
-    contract: contractFullyQualifedName,
-    constructorArguments: [wallet.address],
-    bytecode: paymasterArtifact.bytecode,
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
-
+// Only verify on live networks
+  if (
+    hre.network.name == "zkSyncTestnet" ||
+    hre.network.name == "zkSyncMainnet"
+  ) {
+    // Verify contract programmatically
+    //
+    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+    const contractFullyQualifedName =
+      "contracts/paymasters/SignatureBasedPaymaster.sol:SignatureBasedPaymaster";
+    const verificationId = await hre.run("verify:verify", {
+      address: paymaster.address,
+      contract: contractFullyQualifedName,
+      constructorArguments: [wallet.address],
+      bytecode: paymasterArtifact.bytecode,
+    });
+    console.log(
+      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+    );
+  }
   console.log(`Done!`);
 
 
