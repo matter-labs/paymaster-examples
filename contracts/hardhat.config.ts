@@ -1,7 +1,4 @@
-import "@matterlabs/hardhat-zksync-deploy";
-import "@matterlabs/hardhat-zksync-solc";
-import "@matterlabs/hardhat-zksync-verify";
-import "@nomiclabs/hardhat-etherscan";
+import "@matterlabs/hardhat-zksync";
 
 import { HardhatUserConfig } from "hardhat/config";
 
@@ -10,10 +7,10 @@ const config: HardhatUserConfig = {
     version: "latest",
     settings: {},
   },
-  defaultNetwork: "zkSyncTestnet",
+  defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      zksync: false,
+      zksync: true,
     },
     zkSyncInMemory: {
       url: "http://127.0.0.1:8011",
@@ -37,7 +34,8 @@ const config: HardhatUserConfig = {
       url: "https://mainnet.era.zksync.io",
       ethNetwork: "mainnet",
       zksync: true,
-      verifyURL: "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
+      verifyURL:
+        "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
     },
   },
   solidity: {
