@@ -1,6 +1,6 @@
-import { Provider } from "zksync-web3";
+import { Contract } from "zksync-ethers";
 import * as ethers from "ethers";
-import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types";
+import * as hre from "hardhat";
 
 // load env file
 import dotenv from "dotenv";
@@ -20,20 +20,14 @@ const CONTRACT_ADDRESS = "";
 if (!CONTRACT_ADDRESS) throw "⛔️ Contract address not provided";
 
 // An example of a deploy script that will deploy and call a simple contract.
-export default async function (hre: HardhatRuntimeEnvironment) {
-  console.log(`Running script to interact with contract ${CONTRACT_ADDRESS}`);
-
-  // Initialize the provider.
-  // @ts-ignore
-  const provider = new Provider((hre.network.config as HttpNetworkUserConfig).url);
-  const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+async function main() {
+  console.log(
+    `Running script to interact with contract ${CONTRACT_ADDRESS} on ${hre.network.name}`,
+  );
+  const [signer] = await hre.ethers.getSigners();
 
   // Initialise contract instance
-  const contract = new ethers.Contract(
-    CONTRACT_ADDRESS,
-    ContractArtifact.abi,
-    signer,
-  );
+  const contract = new Contract(CONTRACT_ADDRESS, ContractArtifact.abi, signer);
 
   // Read message from contract
   console.log(`The message is ${await contract.greet()}`);
@@ -48,3 +42,10 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Read message after transaction
   console.log(`The message now is ${await contract.greet()}`);
 }
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
