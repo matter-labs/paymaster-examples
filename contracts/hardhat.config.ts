@@ -2,6 +2,10 @@ import "@matterlabs/hardhat-zksync";
 
 import { HardhatUserConfig } from "hardhat/config";
 
+// load env file
+import dotenv from "dotenv";
+dotenv.config();
+
 const config: HardhatUserConfig = {
   zksolc: {
     version: "latest",
@@ -29,6 +33,7 @@ const config: HardhatUserConfig = {
       // Verification endpoint for Sepolia
       verifyURL:
         "https://explorer.sepolia.era.zksync.dev/contract_verification",
+      accounts: [process.env.WALLET_PRIVATE_KEY || ""],
     },
     zkSyncMainnet: {
       url: "https://mainnet.era.zksync.io",
@@ -36,6 +41,7 @@ const config: HardhatUserConfig = {
       zksync: true,
       verifyURL:
         "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
+      accounts: [process.env.WALLET_PRIVATE_KEY || ""],
     },
   },
   solidity: {

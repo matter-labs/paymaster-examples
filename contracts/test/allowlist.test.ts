@@ -1,55 +1,58 @@
 import { expect } from "chai";
-import { Wallet, Provider, Contract, utils } from "zksync-web3";
-import hardhatConfig from "../hardhat.config";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import * as ethers from "ethers";
-
-import { deployContract, fundAccount, setupDeployer } from "./utils";
+import { Wallet, Contract, utils, Signer } from "zksync-ethers";
+import * as hre from "hardhat";
+import { fundAccount } from "../deploy/utils";
 
 // load env file
 import dotenv from "dotenv";
 dotenv.config();
 
-// load wallet private key from env file
-const PRIVATE_KEY =
-  process.env.WALLET_PRIVATE_KEY ||
-  "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
-
 describe("AllowlistPaymaster", function () {
-  let provider: Provider;
-  let wallet: Wallet;
-  let deployer: Deployer;
+  let randomWallet: any;
   let emptyWallet: Wallet;
-  let userWallet: Wallet;
-  let userInitialBalance: ethers.BigNumber;
+  let userInitialBalance: bigint;
   let paymaster: Contract;
   let greeter: Contract;
+  let paymasterAddress: string;
+  let signers: Signer[];
+  let deployer: Signer;
 
   before(async function () {
-    const deployUrl = hardhatConfig.networks.zkSyncInMemory.url;
-    // setup deployer
-    [provider, wallet, deployer] = setupDeployer(deployUrl, PRIVATE_KEY);
-    // setup new wallet
-    emptyWallet = Wallet.createRandom();
-    console.log(`Empty wallet's address: ${emptyWallet.address}`);
-    userWallet = new Wallet(emptyWallet.privateKey, provider);
-    userInitialBalance = await userWallet.getBalance();
+    // retrieve default signers
+    signers = await hre.ethers.getSigners();
+    deployer = signers[0];
+
+    // setup new empty wallet
+    randomWallet = Wallet.createRandom();
+    emptyWallet = new Wallet(randomWallet.privateKey, hre.ethers.provider);
+
+    userInitialBalance = await hre.ethers.provider.getBalance(
+      emptyWallet.address,
+    );
+
     // deploy contracts
-    paymaster = await deployContract(deployer, "AllowlistPaymaster", []);
-    greeter = await deployContract(deployer, "Greeter", ["Hi"]);
-    // fund paymaster
-    await fundAccount(wallet, paymaster.address, "3");
+    const PaymasterFactory = await hre.ethers.getContractFactory(
+      "AllowlistPaymaster",
+    );
+    const GreeterFactory = await hre.ethers.getContractFactory("Greeter");
+
+    paymaster = await PaymasterFactory.deploy();
+    greeter = await GreeterFactory.deploy("Hi");
+    paymasterAddress = await paymaster.getAddress();
+
+    await fundAccount(deployer, paymasterAddress, "3");
+
     // set allowance for the user wallet
-    const tx = await paymaster
-      .connect(wallet)
-      .setBatchAllowance([userWallet.address], [true]);
-    await tx.wait();
+    const allowanceTx = await paymaster
+      .connect(deployer)
+      .setBatchAllowance([emptyWallet.address], [true]);
+    await allowanceTx.wait();
   });
 
   async function executeGreetingTransaction(user: Wallet) {
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await hre.ethers.provider.getGasPrice();
 
-    const paymasterParams = utils.getPaymasterParams(paymaster.address, {
+    const paymasterParams = utils.getPaymasterParams(paymasterAddress, {
       type: "General",
       // empty bytes as paymaster does not use innerInput
       innerInput: new Uint8Array(),
@@ -58,9 +61,9 @@ describe("AllowlistPaymaster", function () {
     const setGreetingTx = await greeter
       .connect(user)
       .setGreeting("Hola, mundo!", {
-        maxPriorityFeePerGas: ethers.BigNumber.from(0),
+        maxPriorityFeePerGas: 0n,
         maxFeePerGas: gasPrice,
-        // hardhcoded for testing
+        // hardcoded for testing
         gasLimit: 6000000,
         customData: {
           gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
@@ -69,42 +72,47 @@ describe("AllowlistPaymaster", function () {
       });
 
     await setGreetingTx.wait();
-
-    return wallet.getBalance();
   }
 
   it("allowed user can update message for free", async function () {
-    await executeGreetingTransaction(userWallet);
-    const newBalance = await userWallet.getBalance();
+    await executeGreetingTransaction(emptyWallet);
+    const newBalance = await hre.ethers.provider.getBalance(
+      emptyWallet.address,
+    );
     expect(await greeter.greet()).to.equal("Hola, mundo!");
     expect(newBalance).to.eql(userInitialBalance);
   });
 
   it("should allow owner to withdraw all funds", async function () {
     try {
-      const tx = await paymaster.connect(wallet).withdraw(userWallet.address);
+      const tx = await paymaster
+        .connect(deployer)
+        .withdraw(emptyWallet.address);
       await tx.wait();
     } catch (e) {
       console.error("Error executing withdrawal:", e);
     }
 
-    const finalContractBalance = await provider.getBalance(paymaster.address);
+    const finalContractBalance = await hre.ethers.provider.getBalance(
+      paymasterAddress,
+    );
 
-    expect(finalContractBalance).to.eql(ethers.BigNumber.from(0));
+    expect(finalContractBalance).to.eql(0n);
   });
 
   it("should prevent non-owners from withdrawing funds", async function () {
     try {
-      await paymaster.connect(userWallet).withdraw(userWallet.address);
+      await paymaster.connect(emptyWallet).withdraw(emptyWallet.address);
     } catch (e) {
       expect(e.message).to.include("Ownable: caller is not the owner");
     }
   });
   it("should prevent non-allowed user from calling Greeter", async function () {
-    const notAllowedWallet = Wallet.createRandom().connect(provider);
+    const notAllowedWallet = signers[1];
     try {
       await executeGreetingTransaction(notAllowedWallet);
     } catch (e) {
+      // console.error(e);
       expect(e.message).to.include("Account is not in allow list");
     }
   });

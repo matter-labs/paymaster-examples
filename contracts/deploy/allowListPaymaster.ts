@@ -1,11 +1,8 @@
-import { Provider, Wallet } from "zksync-web3";
-import * as ethers from "ethers";
-import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import { fundAccount } from "./utils";
+import * as hre from "hardhat";
 
 // load env file
 import dotenv from "dotenv";
-
 dotenv.config();
 
 // load wallet private key from env file
@@ -14,35 +11,27 @@ const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
 
-export default async function (hre: HardhatRuntimeEnvironment) {
-  console.log(`Running deploy script for the AllowlistPaymaster contract...`);
-  const provider = new Provider((hre.network.config as HttpNetworkUserConfig).url);
+async function main() {
+  const artifact = "AllowlistPaymaster";
+  console.log(
+    `Running script to deploy ${artifact} contract on ${hre.network.name}`,
+  );
 
-  // The wallet that will deploy the token and the paymaster
-  // It is assumed that this wallet already has sufficient funds on zkSync
-  const wallet = new Wallet(PRIVATE_KEY);
-  const deployer = new Deployer(hre, wallet);
+  // Retrieve signers
+  const [deployer] = await hre.ethers.getSigners();
 
   // Deploying the paymaster
-  const paymasterArtifact = await deployer.loadArtifact("AllowlistPaymaster");
-  const deploymentFee = await deployer.estimateDeployFee(paymasterArtifact, []);
-  const parsedFee = ethers.utils.formatEther(deploymentFee.toString());
-  console.log(`The deployment is estimated to cost ${parsedFee} ETH`);
-  // Deploy the contract
-  const paymaster = await deployer.deploy(paymasterArtifact, []);
-  console.log(`Paymaster address: ${paymaster.address}`);
-  console.log(`Contract owner added to allow list: ${wallet.address}`);
+  const paymasterFactory = await hre.ethers.getContractFactory(artifact);
+  const paymaster = await paymasterFactory.deploy([]);
+  const paymasterAddress = await paymaster.getAddress();
+  console.log(`Paymaster address: ${paymasterAddress}`);
+  console.log(`Contract owner added to allow list: ${deployer.address}`);
 
   console.log("Funding paymaster with ETH");
   // Supplying paymaster with ETH
-  await (
-    await deployer.zkWallet.sendTransaction({
-      to: paymaster.address,
-      value: ethers.utils.parseEther("0.005"),
-    })
-  ).wait();
+  await fundAccount(deployer, paymasterAddress, "0.005");
 
-  let paymasterBalance = await provider.getBalance(paymaster.address);
+  let paymasterBalance = await hre.ethers.provider.getBalance(paymasterAddress);
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
   // Verify contract programmatically
@@ -51,10 +40,10 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const contractFullyQualifedName =
     "contracts/paymasters/AllowlistPaymaster.sol:AllowlistPaymaster";
   const verificationId = await hre.run("verify:verify", {
-    address: paymaster.address,
+    address: paymasterAddress,
     contract: contractFullyQualifedName,
     constructorArguments: [],
-    bytecode: paymasterArtifact.bytecode,
+    // bytecode: paymasterArtifact.bytecode,
   });
   console.log(
     `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
@@ -62,3 +51,10 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`Done!`);
 }
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
