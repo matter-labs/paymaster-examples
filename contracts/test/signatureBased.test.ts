@@ -1,44 +1,44 @@
 import { expect } from "chai";
-import { Wallet, Provider, Contract, utils } from "zksync-web3";
-import hardhatConfig from "../hardhat.config";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import * as ethers from "ethers";
-
-import { deployContract, fundAccount, setupDeployer } from "./utils";
+import { Wallet, Provider, Contract, utils, Signer } from "zksync-ethers";
+import * as hre from "hardhat";
+import { deployContract, fundAccount } from "../deploy/utils";
 
 import dotenv from "dotenv";
-import { _TypedDataEncoder } from "ethers/lib/utils";
 dotenv.config();
 
-const PRIVATE_KEY =
-  process.env.WALLET_PRIVATE_KEY ||
-  "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
-const abiCoder = new ethers.utils.AbiCoder();
+const abiCoder = new hre.ethers.AbiCoder();
 
 describe("SignatureBasedPaymaster", function () {
   let provider: Provider;
-  let wallet: Wallet;
-  let deployer: Deployer;
-  let userWallet: Wallet;
+  let randomWallet: any;
+  let emptyWallet: Wallet;
   let signerWallet: Wallet;
   let paymaster: Contract;
+  let paymasterAddress: string;
   let greeter: Contract;
+  let signers: Signer[];
+  let deployer: Signer;
 
   before(async function () {
-    const deployUrl = hardhatConfig.networks.zkSyncInMemory.url;
-    [provider, wallet, deployer] = setupDeployer(deployUrl, PRIVATE_KEY);
-    const emptyWallet = Wallet.createRandom();
-    console.log(`User wallet's address: ${emptyWallet.address}`);
-    userWallet = new Wallet(emptyWallet.privateKey, provider);
-    signerWallet = Wallet.createRandom();
-    console.log(`Signer wallet's address: ${signerWallet.address}`);
-    signerWallet = new Wallet(signerWallet.privateKey, provider);
-    paymaster = await deployContract(deployer, "SignatureBasedPaymaster", [
+    // retrieve default signers
+    signers = await hre.ethers.getSigners();
+    deployer = signers[0];
+    provider = hre.ethers.provider;
+
+    // setup new empty wallet
+    randomWallet = Wallet.createRandom();
+    emptyWallet = new Wallet(randomWallet.privateKey, hre.ethers.provider);
+
+    const randomWallet2 = Wallet.createRandom();
+
+    signerWallet = new Wallet(randomWallet2.privateKey, provider);
+    paymaster = await deployContract("SignatureBasedPaymaster", [
       signerWallet.address,
     ]);
-    greeter = await deployContract(deployer, "Greeter", ["Hi"]);
-    await fundAccount(wallet, paymaster.address, "3");
-    console.log(`Paymaster current signer: ${signerWallet.address}`);
+    paymasterAddress = await paymaster.getAddress();
+
+    greeter = await deployContract("Greeter", ["Hi"]);
+    await fundAccount(deployer, paymasterAddress, "3");
   });
 
   async function createSignatureData(
@@ -75,7 +75,8 @@ describe("SignatureBasedPaymaster", function () {
       nonces: nonce,
     };
 
-    const signature = await signer._signTypedData(domain, types, values);
+    const signature = await signer.signTypedData(domain, types, values);
+
     return [signature, lastTimestamp];
   }
 
@@ -85,7 +86,7 @@ describe("SignatureBasedPaymaster", function () {
   ) {
     const gasPrice = await provider.getGasPrice();
 
-    const paymasterParams = utils.getPaymasterParams(paymaster.address, {
+    const paymasterParams = utils.getPaymasterParams(paymasterAddress, {
       type: "General",
       innerInput: _innerInput,
     });
@@ -93,7 +94,7 @@ describe("SignatureBasedPaymaster", function () {
     const setGreetingTx = await greeter
       .connect(user)
       .setGreeting("Hola, mundo!", {
-        maxPriorityFeePerGas: ethers.BigNumber.from(0),
+        maxPriorityFeePerGas: 0n,
         maxFeePerGas: gasPrice,
         gasLimit: 6000000,
         customData: {
@@ -107,19 +108,19 @@ describe("SignatureBasedPaymaster", function () {
 
   it("should allow user to use paymaster if signature valid and used before expiry and nonce should be updated", async function () {
     const expiryInSeconds = 300;
-    const beforeNonce = await paymaster.nonces(userWallet.address);
+    const beforeNonce = await paymaster.nonces(emptyWallet.address);
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
-      userWallet,
+      emptyWallet,
       expiryInSeconds,
     );
 
-    const innerInput = ethers.utils.arrayify(
+    const innerInput = hre.ethers.getBytes(
       abiCoder.encode(["uint256", "bytes"], [lastTimestamp, sig]),
     );
-    await executeGreetingTransaction(userWallet, innerInput);
-    const afterNonce = await paymaster.nonces(userWallet.address);
-    expect(afterNonce - beforeNonce).to.be.eq(1);
+    await executeGreetingTransaction(emptyWallet, innerInput);
+    const afterNonce = await paymaster.nonces(emptyWallet.address);
+    expect(afterNonce - beforeNonce).to.be.eq(1n);
     expect(await greeter.greet()).to.equal("Hola, mundo!");
   });
 
@@ -130,16 +131,16 @@ describe("SignatureBasedPaymaster", function () {
     const invalidSigner = Wallet.createRandom();
     const [sig, lastTimestamp] = await createSignatureData(
       invalidSigner,
-      userWallet,
+      emptyWallet,
       expiryInSeconds,
     );
 
-    const innerInput = ethers.utils.arrayify(
+    const innerInput = hre.ethers.getBytes(
       abiCoder.encode(["uint256", "bytes"], [lastTimestamp, sig]),
     );
     // Act
     try {
-      await executeGreetingTransaction(userWallet, innerInput);
+      await executeGreetingTransaction(emptyWallet, innerInput);
     } catch (error) {
       errorOccurred = true;
       expect(error.message).to.include("Paymaster: Invalid signer");
@@ -155,11 +156,11 @@ describe("SignatureBasedPaymaster", function () {
     const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
-      userWallet,
+      emptyWallet,
       expiryInSeconds,
     );
 
-    const innerInput = ethers.utils.arrayify(
+    const innerInput = hre.ethers.getBytes(
       abiCoder.encode(["uint256", "bytes"], [lastTimestamp, sig]),
     );
     let newTimestamp: number = +lastTimestamp + 1;
@@ -169,7 +170,7 @@ describe("SignatureBasedPaymaster", function () {
     // Act
 
     try {
-      await executeGreetingTransaction(userWallet, innerInput);
+      await executeGreetingTransaction(emptyWallet, innerInput);
     } catch (error) {
       errorOccurred = true;
       expect(error.message).to.include("Paymaster: Signature expired");
@@ -185,18 +186,18 @@ describe("SignatureBasedPaymaster", function () {
     const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
-      userWallet,
+      emptyWallet,
       expiryInSeconds,
     );
 
-    const innerInput = ethers.utils.arrayify(
+    const innerInput = hre.ethers.getBytes(
       abiCoder.encode(["uint256", "bytes"], [lastTimestamp, sig]),
     );
     // Act
-    await paymaster.cancelNonce(userWallet.address);
+    await paymaster.cancelNonce(emptyWallet.address);
 
     try {
-      await executeGreetingTransaction(userWallet, innerInput);
+      await executeGreetingTransaction(emptyWallet, innerInput);
     } catch (error) {
       errorOccurred = true;
       expect(error.message).to.include("Paymaster: Invalid signer");
@@ -212,16 +213,16 @@ describe("SignatureBasedPaymaster", function () {
     const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       signerWallet,
-      userWallet,
+      emptyWallet,
       expiryInSeconds,
     );
 
-    const innerInput = ethers.utils.arrayify(
+    const innerInput = hre.ethers.getBytes(
       abiCoder.encode(["uint256", "bytes"], [lastTimestamp, sig]),
     );
     // Act
     try {
-      await executeGreetingTransaction(wallet, innerInput);
+      await executeGreetingTransaction(deployer, innerInput);
     } catch (error) {
       errorOccurred = true;
       expect(error.message).to.include("Paymaster: Invalid signer");
@@ -240,16 +241,16 @@ describe("SignatureBasedPaymaster", function () {
     const expiryInSeconds = 300;
     const [sig, lastTimestamp] = await createSignatureData(
       newSigner,
-      userWallet,
+      emptyWallet,
       expiryInSeconds,
     );
 
-    const innerInput = ethers.utils.arrayify(
+    const innerInput = hre.ethers.getBytes(
       abiCoder.encode(["uint256", "bytes"], [lastTimestamp, sig]),
     );
     // Act
     try {
-      await executeGreetingTransaction(userWallet, innerInput);
+      await executeGreetingTransaction(emptyWallet, innerInput);
     } catch (error) {
       errorOccurred = true;
     }
@@ -262,7 +263,7 @@ describe("SignatureBasedPaymaster", function () {
 
   it("should prevent non-owners from withdrawing funds", async function () {
     try {
-      await paymaster.connect(userWallet).withdraw(userWallet.address);
+      await paymaster.connect(emptyWallet).withdraw(emptyWallet.address);
     } catch (e) {
       expect(e.message).to.include("Ownable: caller is not the owner");
     }
@@ -270,14 +271,16 @@ describe("SignatureBasedPaymaster", function () {
 
   it("should allow owner to withdraw all funds", async function () {
     try {
-      const tx = await paymaster.connect(wallet).withdraw(userWallet.address);
+      const tx = await paymaster
+        .connect(deployer)
+        .withdraw(emptyWallet.address);
       await tx.wait();
     } catch (e) {
       console.error("Error executing withdrawal:", e);
     }
 
-    const finalContractBalance = await provider.getBalance(paymaster.address);
+    const finalContractBalance = await provider.getBalance(paymasterAddress);
 
-    expect(finalContractBalance).to.eql(ethers.BigNumber.from(0));
+    expect(finalContractBalance).to.eql(0n);
   });
 });

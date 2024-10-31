@@ -1,4 +1,4 @@
-import { fundAccount } from "./utils";
+import { fundAccount, deployContract } from "./utils";
 import * as hre from "hardhat";
 
 // load env file
@@ -21,8 +21,7 @@ async function main() {
   const [deployer] = await hre.ethers.getSigners();
 
   // Deploying the paymaster
-  const paymasterFactory = await hre.ethers.getContractFactory(artifact);
-  const paymaster = await paymasterFactory.deploy([]);
+  const paymaster = await deployContract(artifact, []);
   const paymasterAddress = await paymaster.getAddress();
   console.log(`Paymaster address: ${paymasterAddress}`);
   console.log(`Contract owner added to allow list: ${deployer.address}`);
@@ -31,7 +30,9 @@ async function main() {
   // Supplying paymaster with ETH
   await fundAccount(deployer, paymasterAddress, "0.005");
 
-  let paymasterBalance = await hre.ethers.provider.getBalance(paymasterAddress);
+  const paymasterBalance = await hre.ethers.provider.getBalance(
+    paymasterAddress,
+  );
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
   // Verify contract programmatically
@@ -43,7 +44,6 @@ async function main() {
     address: paymasterAddress,
     contract: contractFullyQualifedName,
     constructorArguments: [],
-    // bytecode: paymasterArtifact.bytecode,
   });
   console.log(
     `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,

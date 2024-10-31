@@ -1,65 +1,61 @@
 import { expect } from "chai";
-import { Wallet, Provider, Contract, utils } from "zksync-web3";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import * as ethers from "ethers";
-import hardhatConfig from "../hardhat.config";
+import { Wallet, Provider, Contract, utils, Signer } from "zksync-ethers";
+import * as hre from "hardhat";
 
-import { deployContract, fundAccount, setupDeployer } from "./utils";
+import { deployContract, fundAccount } from "../deploy/utils";
 
 // load env file
 import dotenv from "dotenv";
 dotenv.config();
 
-// load wallet private key from env file
-const PRIVATE_KEY =
-  process.env.WALLET_PRIVATE_KEY ||
-  "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
-
 describe("ERC721gatedPaymaster", function () {
   let provider: Provider;
+  let randomWallet: any;
+  let emptyWallet: Wallet;
   let wallet: Wallet;
-  let deployer: Deployer;
-  let userWallet: Wallet;
-  let initialBalance: ethers.BigNumber;
-  let otherBalance: ethers.BigNumber;
+  let initialBalance: bigint;
+  let otherBalance: bigint;
   let paymaster: Contract;
+  let paymasterAddress: string;
   let greeter: Contract;
   let erc721: Contract;
+  let erc721Address: string;
+  let signers: Signer[];
+  let deployer: Signer;
 
   before(async function () {
-    const deployUrl = hardhatConfig.networks.zkSyncInMemory.url;
-    // setup deployer
-    [provider, wallet, deployer] = setupDeployer(deployUrl, PRIVATE_KEY);
-    // setup new wallet
-    userWallet = Wallet.createRandom();
-    userWallet = new Wallet(userWallet.privateKey, provider);
-    initialBalance = await userWallet.getBalance();
+    // retrieve default signers
+    signers = await hre.ethers.getSigners();
+    deployer = signers[0];
+    // setup new empty wallet
+    randomWallet = Wallet.createRandom();
+    emptyWallet = new Wallet(randomWallet.privateKey, hre.ethers.provider);
+    initialBalance = await hre.ethers.provider.getBalance(emptyWallet.address);
+
     // deploy contracts
-    erc721 = await deployContract(deployer, "MyNFT", []);
-    paymaster = await deployContract(deployer, "ERC721gatedPaymaster", [
-      erc721.address,
-    ]);
-    greeter = await deployContract(deployer, "Greeter", ["Hi"]);
+    erc721 = await deployContract("MyNFT", []);
+    erc721Address = await erc721.getAddress();
+    paymaster = await deployContract("ERC721gatedPaymaster", [erc721Address]);
+    paymasterAddress = await paymaster.getAddress();
+    greeter = await deployContract("Greeter", ["Hi"]);
     // fund paymaster
-    await fundAccount(wallet, paymaster.address, "3");
-    otherBalance = await wallet.getBalance();
+    await fundAccount(deployer, paymasterAddress, "3");
   });
 
   async function executeGreetingTransaction(user: Wallet) {
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await hre.ethers.provider.getGasPrice();
 
-    const paymasterParams = utils.getPaymasterParams(paymaster.address, {
+    const paymasterParams = utils.getPaymasterParams(paymasterAddress, {
       type: "General",
       // empty bytes as paymaster does not use innerInput
       innerInput: new Uint8Array(),
     });
-    console.log("user: ", user.address);
     const setGreetingTx = await greeter
       .connect(user)
       .setGreeting("Hello World", {
-        maxPriorityFeePerGas: ethers.BigNumber.from(0),
+        maxPriorityFeePerGas: 0n,
         maxFeePerGas: gasPrice,
-        // hardhcoded for testing
+        // hardcoded for testing
         gasLimit: 6000000,
         customData: {
           gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
@@ -68,18 +64,18 @@ describe("ERC721gatedPaymaster", function () {
       });
 
     await setGreetingTx.wait();
-
-    return wallet.getBalance();
   }
 
   it("should not pay for gas fees when user has NFT", async function () {
     const tx = await erc721
-      .connect(wallet)
-      .createCollectible(userWallet.address);
+      .connect(deployer)
+      .createCollectible(emptyWallet.address);
     await tx.wait();
 
-    await executeGreetingTransaction(userWallet);
-    const newBalance = await userWallet.getBalance();
+    await executeGreetingTransaction(emptyWallet);
+    const newBalance = await hre.ethers.provider.getBalance(
+      emptyWallet.address,
+    );
 
     expect(await greeter.greet()).to.equal("Hello World");
     expect(newBalance).to.eql(initialBalance);
@@ -87,20 +83,24 @@ describe("ERC721gatedPaymaster", function () {
 
   it("should allow owner to withdraw all funds", async function () {
     try {
-      const tx = await paymaster.connect(wallet).withdraw(userWallet.address);
+      const tx = await paymaster
+        .connect(deployer)
+        .withdraw(emptyWallet.address);
       await tx.wait();
     } catch (e) {
       console.error("Error executing withdrawal:", e);
     }
 
-    const finalContractBalance = await provider.getBalance(paymaster.address);
+    const finalContractBalance = await hre.ethers.provider.getBalance(
+      paymasterAddress,
+    );
 
-    expect(finalContractBalance).to.eql(ethers.BigNumber.from(0));
+    expect(finalContractBalance).to.eql(0n);
   });
 
   it("should prevent non-owners from withdrawing funds", async function () {
     try {
-      await paymaster.connect(userWallet).withdraw(userWallet.address);
+      await paymaster.connect(emptyWallet).withdraw(emptyWallet.address);
     } catch (e) {
       expect(e.message).to.include("Ownable: caller is not the owner");
     }

@@ -16,17 +16,17 @@ const config: HardhatUserConfig = {
     hardhat: {
       zksync: true,
     },
-    zkSyncInMemory: {
+    ZKsyncInMemory: {
       url: "http://127.0.0.1:8011",
       ethNetwork: "sepolia",
       zksync: true,
     },
-    zkSyncLocal: {
+    ZKsyncLocal: {
       url: "http://localhost:3050",
       ethNetwork: "http://localhost:8545",
       zksync: true,
     },
-    zkSyncTestnet: {
+    ZKsyncEraTestnet: {
       url: "https://sepolia.era.zksync.dev",
       ethNetwork: "sepolia",
       zksync: true,
@@ -35,7 +35,7 @@ const config: HardhatUserConfig = {
         "https://explorer.sepolia.era.zksync.dev/contract_verification",
       accounts: [process.env.WALLET_PRIVATE_KEY || ""],
     },
-    zkSyncMainnet: {
+    ZKsyncEraMainnet: {
       url: "https://mainnet.era.zksync.io",
       ethNetwork: "mainnet",
       zksync: true,

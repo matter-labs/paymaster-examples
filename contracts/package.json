@@ -23,7 +23,7 @@
   },
   "scripts": {
     "test": "hardhat test",
-    "ci:tests": "hardhat test --network zkSyncInMemory --show-stack-traces",
+    "ci:tests": "hardhat test --show-stack-traces",
     "deploy": "hardhat deploy-zksync",
     "greeter": "hardhat deploy-zksync --script greeter.ts",
     "gasless": "hardhat deploy-zksync --script gaslessPaymaster.ts",

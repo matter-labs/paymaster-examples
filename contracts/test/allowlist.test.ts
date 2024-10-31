@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { Wallet, Contract, utils, Signer } from "zksync-ethers";
 import * as hre from "hardhat";
-import { fundAccount } from "../deploy/utils";
+import { deployContract, fundAccount } from "../deploy/utils";
 
 // load env file
 import dotenv from "dotenv";
@@ -31,13 +31,9 @@ describe("AllowlistPaymaster", function () {
     );
 
     // deploy contracts
-    const PaymasterFactory = await hre.ethers.getContractFactory(
-      "AllowlistPaymaster",
-    );
-    const GreeterFactory = await hre.ethers.getContractFactory("Greeter");
 
-    paymaster = await PaymasterFactory.deploy();
-    greeter = await GreeterFactory.deploy("Hi");
+    paymaster = await deployContract("AllowlistPaymaster", []);
+    greeter = await deployContract("Greeter", ["Hi"]);
     paymasterAddress = await paymaster.getAddress();
 
     await fundAccount(deployer, paymasterAddress, "3");
