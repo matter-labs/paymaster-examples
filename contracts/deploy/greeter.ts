@@ -21,24 +21,28 @@ async function main() {
   // Deploy the contract
   const contract = await deployContract(artifact, [message]);
   const contractAddress = await contract.getAddress();
-  console.log(`NFT contract address: ${contractAddress}`);
+  console.log(`Greeter contract address: ${contractAddress}`);
 
   // Get and log the balance of the recipient
   const greet = await contract.greet();
   console.log(`Message in contract is: ${greet}`);
 
-  // Verify contract programmatically
-  //
-  // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName = "contracts/utils/Greeter.sol:Greeter";
-  const verificationId = await hre.run("verify:verify", {
-    address: contractAddress,
-    contract: contractFullyQualifedName,
-    constructorArguments: [message],
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  if (hre.network.name.includes("ZKsyncEra")) {
+    // only verify on testnet and mainnet
+    console.log("Verifying contract...");
+    // Verify contract programmatically
+    //
+    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+    const contractFullyQualifedName = "contracts/utils/Greeter.sol:Greeter";
+    const verificationId = await hre.run("verify:verify", {
+      address: contractAddress,
+      contract: contractFullyQualifedName,
+      constructorArguments: [message],
+    });
+    console.log(
+      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+    );
+  }
 
   console.log(`Done!`);
 }

@@ -36,18 +36,22 @@ async function main() {
   const balance = await nftContract.balanceOf(RECIPIENT_ADDRESS);
   console.log(`Balance of the recipient: ${balance}`);
 
-  // Verify contract programmatically
-  //
-  // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName = "contracts/token/ERC721.sol:MyNFT";
-  const verificationId = await hre.run("verify:verify", {
-    address: nftAddress,
-    contract: contractFullyQualifedName,
-    constructorArguments: [],
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  if (hre.network.name.includes("ZKsyncEra")) {
+    // only verify on testnet and mainnet
+
+    // Verify contract programmatically
+    //
+    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+    const contractFullyQualifedName = "contracts/token/ERC721.sol:MyNFT";
+    const verificationId = await hre.run("verify:verify", {
+      address: nftAddress,
+      contract: contractFullyQualifedName,
+      constructorArguments: [],
+    });
+    console.log(
+      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+    );
+  }
 
   console.log(`Done!`);
 }

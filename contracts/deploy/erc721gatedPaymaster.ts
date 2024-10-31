@@ -35,19 +35,23 @@ async function main() {
   let paymasterBalance = await hre.ethers.provider.getBalance(paymasterAddress);
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
-  // Verify contract programmatically
-  //
-  // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName =
-    "contracts/paymasters/ERC721gatedPaymaster.sol:ERC721gatedPaymaster";
-  const verificationId = await hre.run("verify:verify", {
-    address: paymasterAddress,
-    contract: contractFullyQualifedName,
-    constructorArguments: [NFT_COLLECTION_ADDRESS],
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  if (hre.network.name.includes("ZKsyncEra")) {
+    // only verify on testnet and mainnet
+
+    // Verify contract programmatically
+    //
+    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+    const contractFullyQualifedName =
+      "contracts/paymasters/ERC721gatedPaymaster.sol:ERC721gatedPaymaster";
+    const verificationId = await hre.run("verify:verify", {
+      address: paymasterAddress,
+      contract: contractFullyQualifedName,
+      constructorArguments: [NFT_COLLECTION_ADDRESS],
+    });
+    console.log(
+      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+    );
+  }
 
   console.log(`Done!`);
 }

@@ -42,18 +42,21 @@ async function main() {
   const balance = await contract.balanceOf(RECIPIENT_ADDRESS);
   console.log(`Balance of the recipient: ${balance}`);
 
-  // Verify contract programmatically
-  //
-  // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName = "contracts/token/ERC20.sol:MyERC20";
-  const verificationId = await hre.run("verify:verify", {
-    address: contractAddress,
-    contract: contractFullyQualifedName,
-    constructorArguments: [name, symbol, decimals],
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  if (hre.network.name.includes("ZKsyncEra")) {
+    // only verify on testnet and mainnet
+    // Verify contract programmatically
+    //
+    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+    const contractFullyQualifedName = "contracts/token/ERC20.sol:MyERC20";
+    const verificationId = await hre.run("verify:verify", {
+      address: contractAddress,
+      contract: contractFullyQualifedName,
+      constructorArguments: [name, symbol, decimals],
+    });
+    console.log(
+      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+    );
+  }
 
   console.log(`Done!`);
 }
