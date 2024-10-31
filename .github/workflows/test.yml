@@ -11,17 +11,19 @@ jobs:
       matrix:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
+    env:
+      WALLET_PRIVATE_KEY: "0x3d3cbc973389cb26f657686445bcc75662b415b656078503592ac8c1abb8810e"
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-    
-    - name: Run Era Test Node
-      uses: dutterbutter/era-test-node-action@latest
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Install Dependencies
-      run: yarn install
-    
-    - name: Run Tests
-      run: |
-        yarn ci:tests
+      - name: Run Era Test Node
+        uses: dutterbutter/era-test-node-action@latest
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Run Tests
+        run: |
+          yarn ci:tests
