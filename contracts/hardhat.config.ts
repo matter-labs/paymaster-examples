@@ -6,8 +6,9 @@ import { HardhatUserConfig } from "hardhat/config";
 import dotenv from "dotenv";
 dotenv.config();
 
+// PK from era-test-node rich wallet list https://docs.zksync.io/build/test-and-debug/in-memory-node#pre-configured-rich-wallets
 const TEST_RICH_WALLET =
-  "stuff slice staff easily soup parent arm payment cotton trade scatter struggle";
+  "0x3d3cbc973389cb26f657686445bcc75662b415b656078503592ac8c1abb8810e";
 
 const config: HardhatUserConfig = {
   zksolc: {
