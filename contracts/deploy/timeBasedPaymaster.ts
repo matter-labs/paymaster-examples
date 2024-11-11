@@ -12,16 +12,17 @@ if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
 
 async function main() {
-  const artifact = "TimeBasedPaymaster";
+  const contract = "TimeBasedPaymaster";
+  const artifact = await hre.ethers.loadArtifact(contract);
   console.log(
-    `Running script to deploy ${artifact} contract on ${hre.network.name}`,
+    `Running script to deploy ${artifact.contractName} contract on ${hre.network.name}`,
   );
 
   // Retrieve signers
   const [deployer] = await hre.ethers.getSigners();
 
   // Deploying the paymaster
-  const paymaster = await deployContract(artifact, []);
+  const paymaster = await deployContract(artifact.contractName, []);
   const paymasterAddress = await paymaster.getAddress();
   console.log(`Paymaster address: ${paymasterAddress}`);
 
@@ -34,20 +35,16 @@ async function main() {
   );
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
+  // only verify on testnet and mainnet
   if (hre.network.name.includes("ZKsyncEra")) {
-    // only verify on testnet and mainnet
-    // Verify contract programmatically
-    //
-    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-    const contractFullyQualifedName =
-      "contracts/paymasters/TimeBasedPaymaster.sol:TimeBasedPaymaster";
     const verificationId = await hre.run("verify:verify", {
       address: paymasterAddress,
-      contract: contractFullyQualifedName,
-      constructorArguments: [],
+      // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+      contract: `${artifact.sourceName}:${artifact.contractName}`,
+      constructorArguments: [deployer.address],
     });
     console.log(
-      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+      `${artifact.contractName} verified! VerificationId: ${verificationId}`,
     );
   }
   console.log(`Done!`);

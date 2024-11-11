@@ -18,12 +18,13 @@ if (!RECIPIENT_ADDRESS)
   throw "⛔️ RECIPIENT_ADDRESS not detected! Add it to the RECIPIENT_ADDRESS variable!";
 
 async function main() {
-  const artifact = "MyNFT";
+  const contract = "MyNFT";
+  const artifact = await hre.ethers.loadArtifact(contract);
   console.log(
-    `Running script to deploy ${artifact} contract on ${hre.network.name}`,
+    `Running script to deploy ${artifact.contractName} contract on ${hre.network.name}`,
   );
   // Deploy the contract
-  const nftContract = await deployContract(artifact, []);
+  const nftContract = await deployContract(artifact.contractName, []);
   const nftAddress = await nftContract.getAddress();
   console.log(`NFT contract address: ${nftAddress}`);
 
@@ -36,20 +37,16 @@ async function main() {
   const balance = await nftContract.balanceOf(RECIPIENT_ADDRESS);
   console.log(`Balance of the recipient: ${balance}`);
 
+  // only verify on testnet and mainnet
   if (hre.network.name.includes("ZKsyncEra")) {
-    // only verify on testnet and mainnet
-
-    // Verify contract programmatically
-    //
-    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-    const contractFullyQualifedName = "contracts/token/ERC721.sol:MyNFT";
     const verificationId = await hre.run("verify:verify", {
       address: nftAddress,
-      contract: contractFullyQualifedName,
+      // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+      contract: `${artifact.sourceName}:${artifact.contractName}`,
       constructorArguments: [],
     });
     console.log(
-      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+      `${artifact.contractName} verified! VerificationId: ${verificationId}`,
     );
   }
 

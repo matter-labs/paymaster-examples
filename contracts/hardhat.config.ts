@@ -6,6 +6,9 @@ import { HardhatUserConfig } from "hardhat/config";
 import dotenv from "dotenv";
 dotenv.config();
 
+const TEST_RICH_WALLET =
+  "stuff slice staff easily soup parent arm payment cotton trade scatter struggle";
+
 const config: HardhatUserConfig = {
   zksolc: {
     version: "latest",
@@ -33,7 +36,7 @@ const config: HardhatUserConfig = {
       // Verification endpoint for Sepolia
       verifyURL:
         "https://explorer.sepolia.era.zksync.dev/contract_verification",
-      accounts: [process.env.WALLET_PRIVATE_KEY || ""],
+      accounts: [process.env.WALLET_PRIVATE_KEY || TEST_RICH_WALLET],
     },
     ZKsyncEraMainnet: {
       url: "https://mainnet.era.zksync.io",
@@ -41,7 +44,7 @@ const config: HardhatUserConfig = {
       zksync: true,
       verifyURL:
         "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
-      accounts: [process.env.WALLET_PRIVATE_KEY || ""],
+      accounts: [process.env.WALLET_PRIVATE_KEY || TEST_RICH_WALLET],
     },
   },
   solidity: {

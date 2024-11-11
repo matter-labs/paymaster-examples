@@ -18,16 +18,20 @@ if (!TOKEN_ADDRESS)
   throw "⛔️ TOKEN_ADDRESS not detected! Add it to the TOKEN_ADDRESS variable!";
 
 async function main() {
-  const artifact = "ERC20fixedPaymaster";
+  const contract = "ERC20fixedPaymaster";
+  const artifact = await hre.ethers.loadArtifact(contract);
+
   console.log(
-    `Running script to deploy ${artifact} contract on ${hre.network.name}`,
+    `Running script to deploy ${artifact.contractName} contract on ${hre.network.name}`,
   );
 
   // Retrieve signers
   const [deployer] = await hre.ethers.getSigners();
 
   // Deploying the paymaster
-  const paymaster = await deployContract(artifact, [TOKEN_ADDRESS]);
+  const paymaster = await deployContract(artifact.contractName, [
+    TOKEN_ADDRESS,
+  ]);
   const paymasterAddress = await paymaster.getAddress();
   console.log(`Paymaster address: ${paymasterAddress}`);
 
@@ -39,21 +43,16 @@ async function main() {
   );
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
+  // only verify on testnet and mainnet
   if (hre.network.name.includes("ZKsyncEra")) {
-    // only verify on testnet and mainnet
-
-    // Verify contract programmatically
-    //
-    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-    const contractFullyQualifedName =
-      "contracts/paymasters/ERC20fixedPaymaster.sol:ERC20fixedPaymaster";
     const verificationId = await hre.run("verify:verify", {
       address: paymasterAddress,
-      contract: contractFullyQualifedName,
+      // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+      contract: `${artifact.sourceName}:${artifact.contractName}`,
       constructorArguments: [TOKEN_ADDRESS],
     });
     console.log(
-      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+      `${artifact.contractName} verified! VerificationId: ${verificationId}`,
     );
   }
   console.log(`Done!`);

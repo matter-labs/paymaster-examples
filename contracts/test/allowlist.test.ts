@@ -108,7 +108,6 @@ describe("AllowlistPaymaster", function () {
     try {
       await executeGreetingTransaction(notAllowedWallet);
     } catch (e) {
-      // console.error(e);
       expect(e.message).to.include("Account is not in allow list");
     }
   });

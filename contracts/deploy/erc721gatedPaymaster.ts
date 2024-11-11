@@ -17,14 +17,18 @@ if (!NFT_COLLECTION_ADDRESS)
   throw "⛔️ NFT_COLLECTION_ADDRESS not detected! Add it to the NFT_COLLECTION_ADDRESS variable!";
 
 async function main() {
-  const artifact = "ERC721gatedPaymaster";
+  const contract = "ERC721gatedPaymaster";
+  const artifact = await hre.ethers.loadArtifact(contract);
+
   console.log(
-    `Running script to deploy ${artifact} contract on ${hre.network.name}`,
+    `Running script to deploy ${artifact.contractName} contract on ${hre.network.name}`,
   );
   const [deployer] = await hre.ethers.getSigners();
 
   // Deploying the paymaster
-  const paymaster = await deployContract(artifact, [NFT_COLLECTION_ADDRESS]);
+  const paymaster = await deployContract(artifact.contractName, [
+    NFT_COLLECTION_ADDRESS,
+  ]);
   const paymasterAddress = await paymaster.getAddress();
   console.log(`Paymaster address: ${paymasterAddress}`);
 
@@ -35,21 +39,16 @@ async function main() {
   let paymasterBalance = await hre.ethers.provider.getBalance(paymasterAddress);
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 
+  // only verify on testnet and mainnet
   if (hre.network.name.includes("ZKsyncEra")) {
-    // only verify on testnet and mainnet
-
-    // Verify contract programmatically
-    //
-    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-    const contractFullyQualifedName =
-      "contracts/paymasters/ERC721gatedPaymaster.sol:ERC721gatedPaymaster";
     const verificationId = await hre.run("verify:verify", {
       address: paymasterAddress,
-      contract: contractFullyQualifedName,
+      // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+      contract: `${artifact.sourceName}:${artifact.contractName}`,
       constructorArguments: [NFT_COLLECTION_ADDRESS],
     });
     console.log(
-      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+      `${artifact.contractName} verified! VerificationId: ${verificationId}`,
     );
   }
 

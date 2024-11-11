@@ -1,5 +1,4 @@
 import { Contract } from "zksync-ethers";
-import * as ethers from "ethers";
 import * as hre from "hardhat";
 
 // load env file

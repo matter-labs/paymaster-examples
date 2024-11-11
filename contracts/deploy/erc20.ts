@@ -18,7 +18,9 @@ if (!RECIPIENT_ADDRESS)
   throw "⛔️ RECIPIENT_ADDRESS not detected! Add it to the RECIPIENT_ADDRESS variable!";
 
 async function main() {
-  const artifact = "MyERC20";
+  const contract = "MyERC20";
+  const artifact = await hre.ethers.loadArtifact(contract);
+
   console.log(
     `Running script to deploy ${artifact} contract on ${hre.network.name}`,
   );
@@ -26,35 +28,36 @@ async function main() {
   const symbol = "ERC20";
   const decimals = 18;
   // Deploy the contract
-  const contract = await deployContract(artifact, [name, symbol, decimals]);
-  const contractAddress = await contract.getAddress();
+  const erc20 = await deployContract(artifact.contractName, [
+    name,
+    symbol,
+    decimals,
+  ]);
+  const contractAddress = await erc20.getAddress();
   console.log(`Token contract address: ${contractAddress}`);
 
   // Mint token to the recipient address
   const amount = hre.ethers.parseEther("100");
-  const tx = await contract.mint(RECIPIENT_ADDRESS, amount);
+  const tx = await erc20.mint(RECIPIENT_ADDRESS, amount);
   console.log(
     `${amount} tokens minted to ${RECIPIENT_ADDRESS}! TxHash: ${tx.hash}`,
   );
   await tx.wait();
 
   // Get and log the balance of the recipient
-  const balance = await contract.balanceOf(RECIPIENT_ADDRESS);
+  const balance = await erc20.balanceOf(RECIPIENT_ADDRESS);
   console.log(`Balance of the recipient: ${balance}`);
 
+  // only verify on testnet and mainnet
   if (hre.network.name.includes("ZKsyncEra")) {
-    // only verify on testnet and mainnet
-    // Verify contract programmatically
-    //
-    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-    const contractFullyQualifedName = "contracts/token/ERC20.sol:MyERC20";
     const verificationId = await hre.run("verify:verify", {
       address: contractAddress,
-      contract: contractFullyQualifedName,
+      // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+      contract: `${artifact.sourceName}:${artifact.contractName}`,
       constructorArguments: [name, symbol, decimals],
     });
     console.log(
-      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+      `${artifact.contractName} verified! VerificationId: ${verificationId}`,
     );
   }
 

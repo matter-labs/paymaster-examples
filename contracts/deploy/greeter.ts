@@ -13,34 +13,33 @@ if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
 
 async function main() {
-  const artifact = "Greeter";
+  const contract = "Greeter";
+  const artifact = await hre.ethers.loadArtifact(contract);
   console.log(
-    `Running script to deploy ${artifact} contract on ${hre.network.name}`,
+    `Running script to deploy ${artifact.contractName} contract on ${hre.network.name}`,
   );
   const message = "ZK is the endgame";
   // Deploy the contract
-  const contract = await deployContract(artifact, [message]);
-  const contractAddress = await contract.getAddress();
+  const greeter = await deployContract((await artifact).contractName, [
+    message,
+  ]);
+  const contractAddress = await greeter.getAddress();
   console.log(`Greeter contract address: ${contractAddress}`);
 
   // Get and log the balance of the recipient
-  const greet = await contract.greet();
+  const greet = await greeter.greet();
   console.log(`Message in contract is: ${greet}`);
 
+  // only verify on testnet and mainnet
   if (hre.network.name.includes("ZKsyncEra")) {
-    // only verify on testnet and mainnet
-    console.log("Verifying contract...");
-    // Verify contract programmatically
-    //
-    // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-    const contractFullyQualifedName = "contracts/utils/Greeter.sol:Greeter";
     const verificationId = await hre.run("verify:verify", {
       address: contractAddress,
-      contract: contractFullyQualifedName,
+      // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
+      contract: `${artifact.sourceName}:${artifact.contractName}`,
       constructorArguments: [message],
     });
     console.log(
-      `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+      `${artifact.contractName} verified! VerificationId: ${verificationId}`,
     );
   }
 
