@@ -13,15 +13,15 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-    
-    - name: Run Era Test Node
-      uses: dutterbutter/era-test-node-action@latest
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Install Dependencies
-      run: yarn install
-    
-    - name: Run Tests
-      run: |
-        yarn ci:tests
+      - name: Run Era Test Node
+        uses: dutterbutter/era-test-node-action@latest
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Run Tests
+        run: |
+          yarn ci:tests

@@ -1,41 +1,44 @@
 import { expect } from "chai";
-import { Wallet, Provider, Contract, utils } from "zksync-web3";
-import hardhatConfig from "../hardhat.config";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import * as ethers from "ethers";
+import { Wallet, Provider, Contract, utils } from "zksync-ethers";
+import * as hre from "hardhat";
 
-import { deployContract, fundAccount, setupDeployer } from "./utils";
+import { deployContract, fundAccount } from "../deploy/utils";
 
 import dotenv from "dotenv";
 dotenv.config();
 
-const PRIVATE_KEY =
-  process.env.WALLET_PRIVATE_KEY ||
-  "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110";
-
 describe("TimeBasedPaymaster", function () {
   let provider: Provider;
-  let wallet: Wallet;
-  let deployer: Deployer;
-  let userWallet: Wallet;
+  let randomWallet: any;
+  let emptyWallet: Wallet;
   let paymaster: Contract;
   let greeter: Contract;
+  let paymasterAddress: string;
+  let signers: Signer[];
+  let deployer: Signer;
 
   before(async function () {
-    const deployUrl = hardhatConfig.networks.zkSyncInMemory.url;
-    [provider, wallet, deployer] = setupDeployer(deployUrl, PRIVATE_KEY);
-    userWallet = Wallet.createRandom();
-    console.log(`User wallet's address: ${userWallet.address}`);
-    userWallet = new Wallet(userWallet.privateKey, provider);
-    paymaster = await deployContract(deployer, "TimeBasedPaymaster", []);
-    greeter = await deployContract(deployer, "Greeter", ["Hi"]);
-    await fundAccount(wallet, paymaster.address, "3");
+    // retrieve default signers
+    signers = await hre.ethers.getSigners();
+    deployer = signers[0];
+    provider = hre.ethers.provider;
+
+    // setup new empty wallet
+    randomWallet = Wallet.createRandom();
+    emptyWallet = new Wallet(randomWallet.privateKey, hre.ethers.provider);
+
+    // deploy contracts
+    paymaster = await deployContract("TimeBasedPaymaster", []);
+    greeter = await deployContract("Greeter", ["Hi"]);
+    paymasterAddress = await paymaster.getAddress();
+
+    await fundAccount(deployer, paymasterAddress, "3");
   });
 
   async function executeGreetingTransaction(user: Wallet) {
     const gasPrice = await provider.getGasPrice();
 
-    const paymasterParams = utils.getPaymasterParams(paymaster.address, {
+    const paymasterParams = utils.getPaymasterParams(paymasterAddress, {
       type: "General",
       innerInput: new Uint8Array(),
     });
@@ -43,7 +46,7 @@ describe("TimeBasedPaymaster", function () {
     const setGreetingTx = await greeter
       .connect(user)
       .setGreeting("Hola, mundo!", {
-        maxPriorityFeePerGas: ethers.BigNumber.from(0),
+        maxPriorityFeePerGas: 0n,
         maxFeePerGas: gasPrice,
         gasLimit: 6000000,
         customData: {
@@ -58,10 +61,20 @@ describe("TimeBasedPaymaster", function () {
   it("should fail due to Paymaster validation error outside the time window", async function () {
     // Arrange
     let errorOccurred = false;
+    const currentDate = new Date();
+    currentDate.setUTCHours(10);
+    currentDate.setUTCMinutes(1);
+    currentDate.setUTCSeconds(0);
+    currentDate.setUTCMilliseconds(0);
+    const targetTime = Math.floor(currentDate.getTime() / 1000);
+    const newTimestampHex = `0x${targetTime.toString(16)}`;
+
+    await provider.send("evm_setNextBlockTimestamp", [newTimestampHex]);
+    await provider.send("evm_mine", []);
 
     // Act
     try {
-      await executeGreetingTransaction(wallet);
+      await executeGreetingTransaction(emptyWallet);
     } catch (error) {
       errorOccurred = true;
       expect(error.message).to.include("Paymaster validation error");
@@ -74,17 +87,20 @@ describe("TimeBasedPaymaster", function () {
     // Arrange
     const currentDate = new Date();
     currentDate.setUTCHours(14);
-    currentDate.setUTCMinutes(1);
+    currentDate.setUTCMinutes(2);
     currentDate.setUTCSeconds(0);
     currentDate.setUTCMilliseconds(0);
     const targetTime = Math.floor(currentDate.getTime() / 1000);
-    await provider.send("evm_setNextBlockTimestamp", [targetTime]);
+    const newTimestampHex = `0x${targetTime.toString(16)}`;
+
+    await provider.send("evm_setNextBlockTimestamp", [newTimestampHex]);
+    await provider.send("evm_mine", []);
 
     // Act
-    const initialBalance = await userWallet.getBalance();
-    await executeGreetingTransaction(userWallet);
+    const initialBalance = await provider.getBalance(emptyWallet.address);
+    await executeGreetingTransaction(emptyWallet);
     await provider.send("evm_mine", []);
-    const newBalance = await userWallet.getBalance();
+    const newBalance = await provider.getBalance(emptyWallet.address);
 
     // Assert
     expect(newBalance.toString()).to.equal(initialBalance.toString());
