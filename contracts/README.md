@@ -8,6 +8,7 @@ This repository contains several example Paymaster Smart Contracts that cover mo
 
 - 🆓 **[Gasless Paymaster](./contracts/paymasters/GaslessPaymaster.sol)**: Pays fees for any account.
 - 📜 **[Allowlist Paymaster](./contracts/paymasters/AllowlistPaymaster.sol)**: Pays fees for accounts present in a predefined list (the "allow list").
+- 📜 **[Application Paymaster](./contracts/paymasters/ApplicationPaymaster.sol)**: Pays fees for transactions targeting and allowed contract and function selector.
 - 🎫 **[ERC20 Fixed Paymaster](./contracts/paymasters/ERC20fixedPaymaster.sol)**: Accepts a fixed amount of a specific ERC20 token in exchange for covering gas fees. It only services accounts that have a balance of the specified token. 
 - 🎨 **[ERC721 Gated Paymaster](./contracts/paymasters/ERC721gatedPaymaster.sol)**: Pays fees for accounts that hold a specific ERC721 token (NFT).
 - 🎨 **[TimeBased Paymaster](./contracts/paymasters/TimeBasedPaymaster.sol)**: Pays fees for accounts that interact with contract at specific times.

@@ -26,6 +26,7 @@
     "ci:tests": "hardhat test --show-stack-traces",
     "greeter": "hardhat run ./deploy/greeter.ts",
     "gasless": "hardhat run ./deploy/gaslessPaymaster.ts",
+    "application": "hardhat run ./deploy/applicationPaymaster.ts",
     "allowList": "hardhat run ./deploy/allowListPaymaster.ts",
     "nftGated": "hardhat run ./deploy/erc721gatedPaymaster.ts",
     "fixedToken": "hardhat run ./deploy/erc20fixedPaymaster.ts",
